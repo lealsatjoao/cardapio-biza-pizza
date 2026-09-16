@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { EsfihasSection } from './components/EsfihasSection'
+import { Header } from './components/Header'
 import { PasteisSection } from './components/PasteisSection'
 import { PizzasSection } from './components/PizzasSection'
 import { PorcoesSection } from './components/PorcoesSection'
@@ -16,6 +17,7 @@ const MAIN_TABS = [
 
 function App() {
   const [tab, setTab] = useState('pasteis')
+  const [lang, setLang] = useState<'pt' | 'en'>('pt')
 
   return (
     <>
@@ -26,23 +28,19 @@ function App() {
         <div className="absolute inset-0 bg-black/45 backdrop-blur-[0.5px]" />
       </div>
 
-      <div className="relative z-10 mx-auto flex min-h-screen max-w-md flex-col gap-4 px-4 pb-8 pt-6">
-        <header className="text-center">
-          <h1 className="text-3xl font-black tracking-wide text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]">
-            Biza Pizzas
-          </h1>
-          <p className="mt-1 text-sm font-medium text-white/80">Cardápio do Salão · Dine-in Menu</p>
-          <p className="mt-1 text-xs font-semibold tracking-wide text-orange-300">Preços em Dólar Americano ($) + Tax</p>
-        </header>
+      <div className="relative z-10 mx-auto flex min-h-screen max-w-md flex-col gap-4 pb-8">
+        <Header lang={lang} setLang={setLang} />
 
-        <Tabs options={MAIN_TABS} active={tab} onChange={setTab} variant="primary" />
+        <div className="flex flex-1 flex-col gap-4 px-4">
+          <Tabs options={MAIN_TABS} active={tab} onChange={setTab} variant="primary" />
 
-        <main className="flex-1">
-          {tab === 'pasteis' && <PasteisSection />}
-          {tab === 'pizzas' && <PizzasSection />}
-          {tab === 'esfihas' && <EsfihasSection />}
-          {tab === 'porcoes' && <PorcoesSection />}
-        </main>
+          <main className="flex-1">
+            {tab === 'pasteis' && <PasteisSection />}
+            {tab === 'pizzas' && <PizzasSection />}
+            {tab === 'esfihas' && <EsfihasSection />}
+            {tab === 'porcoes' && <PorcoesSection />}
+          </main>
+        </div>
       </div>
     </>
   )
