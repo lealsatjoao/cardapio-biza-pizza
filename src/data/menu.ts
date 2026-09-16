@@ -324,17 +324,52 @@ export interface Bebida {
   nomeEn?: string
 }
 
-export const refrigerantes: Bebida[] = [
-  { nome: 'Guaraná Antarctica' },
-  { nome: 'Fanta Laranja', nomeEn: 'Fanta Orange' },
-  { nome: 'Pepsi' },
-  { nome: 'Sprite' },
+export interface RefrigeranteTamanho {
+  key: string
+  preco: string
+  sabores: string[]
+  saboresZero?: string[]
+  excecoes?: { nome: string; preco: string }[]
+}
+
+export const refrigerantes: RefrigeranteTamanho[] = [
+  {
+    key: '2l',
+    preco: '$7,00 +Tax',
+    sabores: ['Guaraná', 'Coca-Cola', 'Fanta', 'Sprite'],
+    saboresZero: ['Coca-Cola Zero', 'Guaraná Zero', 'Pepsi Zero'],
+  },
+  {
+    key: '600ml',
+    preco: '$4,00 +Tax',
+    sabores: ['Coca-Cola', 'Fanta', 'Sprite'],
+  },
+  {
+    key: 'lata',
+    preco: '$2,00 +Tax',
+    sabores: ['Coca-Cola', 'Coca-Cola Zero', 'Fanta', 'Sprite', 'Pepsi Zero'],
+    excecoes: [
+      { nome: 'Guaraná Antarctica', preco: '$3,00 +Tax' },
+      { nome: 'Guaraná Antarctica Zero', preco: '$3,00 +Tax' },
+    ],
+  },
 ]
 
-export const sucos: Bebida[] = [
+export const sucosNaturais: Bebida[] = [
   { nome: 'Maracujá', nomeEn: 'Passion Fruit' },
   { nome: 'Abacaxi', nomeEn: 'Pineapple' },
   { nome: 'Morango', nomeEn: 'Strawberry' },
   { nome: 'Manga', nomeEn: 'Mango' },
   { nome: 'Goiaba', nomeEn: 'Guava' },
 ]
+
+export const sucosCaixa: Bebida[] = [
+  { nome: 'Manga', nomeEn: 'Mango' },
+  { nome: 'Pêssego', nomeEn: 'Peach' },
+  { nome: 'Maçã', nomeEn: 'Apple' },
+]
+
+export const aguaMineral: Bebida = {
+  nome: 'Água Mineral Garrafa (500 ml)',
+  nomeEn: 'Bottled Spring Water (500ml)',
+}
