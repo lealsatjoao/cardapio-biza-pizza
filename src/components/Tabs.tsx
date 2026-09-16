@@ -1,9 +1,7 @@
-import type { ReactNode } from 'react'
-
 interface TabOption {
   id: string
   label: string
-  icon?: ReactNode
+  icon?: string
 }
 
 interface TabsProps {
@@ -33,13 +31,15 @@ export function Tabs({ options, active, onChange, variant = 'primary' }: TabsPro
             onClick={() => onChange(opt.id)}
             className={[
               'shrink-0 rounded-xl font-semibold transition-all duration-200',
-              isPrimary ? 'flex flex-col items-center gap-1 px-2 py-2.5 text-[11px]' : 'px-3.5 py-2 text-xs whitespace-nowrap',
+              isPrimary ? 'flex flex-col items-center px-2 py-2.5 text-[11px]' : 'px-3.5 py-2 text-xs whitespace-nowrap',
               isActive
                 ? 'bg-orange-500 text-white shadow-lg shadow-orange-900/40'
                 : 'text-white/70 hover:bg-white/10 hover:text-white',
             ].join(' ')}
           >
-            {isPrimary && opt.icon && <span className="flex h-8 items-center justify-center">{opt.icon}</span>}
+            {isPrimary && opt.icon && (
+              <img src={opt.icon} alt={opt.label} className="mx-auto mb-1 h-8 w-8 object-contain drop-shadow-md" />
+            )}
             <span>{opt.label}</span>
           </button>
         )

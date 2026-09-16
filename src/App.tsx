@@ -1,16 +1,17 @@
 import { useState } from 'react'
 import { EsfihasSection } from './components/EsfihasSection'
-import { EsfihaIcon, PastelIcon, PizzaIcon, PorcaoIcon } from './components/CategoryIcons'
 import { PasteisSection } from './components/PasteisSection'
 import { PizzasSection } from './components/PizzasSection'
 import { PorcoesSection } from './components/PorcoesSection'
 import { Tabs } from './components/Tabs'
 
+const ICON_BASE = `${import.meta.env.BASE_URL}icons/`
+
 const MAIN_TABS = [
-  { id: 'pasteis', label: 'Pastéis', icon: <PastelIcon /> },
-  { id: 'pizzas', label: 'Pizzas', icon: <PizzaIcon /> },
-  { id: 'esfihas', label: 'Esfihas', icon: <EsfihaIcon /> },
-  { id: 'porcoes', label: 'Porções', icon: <PorcaoIcon /> },
+  { id: 'pasteis', label: 'Pastéis', icon: `${ICON_BASE}pastel.png` },
+  { id: 'pizzas', label: 'Pizzas', icon: `${ICON_BASE}pizza.png` },
+  { id: 'esfihas', label: 'Esfihas', icon: `${ICON_BASE}esfiha.png` },
+  { id: 'porcoes', label: 'Porções', icon: `${ICON_BASE}porcao.png` },
 ]
 
 function App() {
