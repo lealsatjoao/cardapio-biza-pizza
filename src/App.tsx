@@ -26,6 +26,7 @@ function App() {
         style={{ backgroundImage: `url(${import.meta.env.BASE_URL}bg-biza.jpg)` }}
       >
         <div className="absolute inset-0 bg-black/45 backdrop-blur-[0.5px]" />
+        <div className="absolute inset-x-0 top-0 h-80 bg-gradient-to-b from-black/95 via-black/70 to-transparent" />
       </div>
 
       <div className="relative z-10 mx-auto flex min-h-screen max-w-md flex-col gap-4 pb-8">
