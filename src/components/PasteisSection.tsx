@@ -18,6 +18,8 @@ export function PasteisSection({ lang }: { lang: Lang }) {
     <div className="flex flex-col gap-4">
       <Tabs options={SUBTABS} active={sub} onChange={setSub} variant="secondary" />
 
+      <Notice>{t.notices.pastelFresh}</Notice>
+
       {sub === 'salgados' && (
         <>
           <SectionCard>
@@ -50,8 +52,6 @@ export function PasteisSection({ lang }: { lang: Lang }) {
           </div>
         </SectionCard>
       )}
-
-      <Notice>{t.notices.pastelFresh}</Notice>
     </div>
   )
 }

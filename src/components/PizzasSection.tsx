@@ -40,8 +40,9 @@ export function PizzasSection({ lang }: { lang: Lang }) {
             </div>
           ))}
         </div>
-        <p className="mt-3 text-center text-xs font-semibold text-orange-200">{t.sizes.crustNotice}</p>
       </SectionCard>
+
+      <Notice>{t.sizes.crustNotice}</Notice>
 
       <Tabs options={SUBTABS} active={sub} onChange={setSub} variant="secondary" />
 

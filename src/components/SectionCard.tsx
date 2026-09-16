@@ -25,7 +25,7 @@ export function GroupTitle({ children, price }: { children: ReactNode; price?: s
 
 export function Notice({ children }: { children: ReactNode }) {
   return (
-    <div className="rounded-xl bg-orange-500/15 p-3 text-xs leading-relaxed text-orange-100 ring-1 ring-orange-400/30">
+    <div className="mb-3 rounded-lg border border-amber-600/40 bg-amber-950/50 px-3 py-2 text-center text-xs text-amber-200/90 shadow-sm backdrop-blur-sm">
       {children}
     </div>
   )

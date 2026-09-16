@@ -26,6 +26,8 @@ export function EsfihasSection({ lang }: { lang: Lang }) {
     <div className="flex flex-col gap-4">
       <Tabs options={SUBTABS} active={sub} onChange={setSub} variant="secondary" />
 
+      <Notice>{t.notices.esfihaMin}</Notice>
+
       {sub === 'combos' && (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {combosEsfihas.map((combo) => (
@@ -70,8 +72,6 @@ export function EsfihasSection({ lang }: { lang: Lang }) {
           </div>
         </SectionCard>
       )}
-
-      <Notice>{t.notices.esfihaMin}</Notice>
     </div>
   )
 }
