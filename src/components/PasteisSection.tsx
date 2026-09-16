@@ -1,22 +1,18 @@
 import { useState } from 'react'
-import {
-  pasteisAviso,
-  pasteisDoces,
-  pasteisPrecos,
-  pasteisSalgadosEspeciais,
-  pasteisSalgadosTradicionais,
-} from '../data/menu'
+import { localizePrice, pasteisDoces, pasteisPrecos, pasteisSalgadosEspeciais, pasteisSalgadosTradicionais } from '../data/menu'
+import { translations, type Lang } from '../utils/translations'
 import { MenuItemRow } from './MenuItemRow'
 import { GroupTitle, Notice, SectionCard } from './SectionCard'
 import { Tabs } from './Tabs'
 
-const SUBTABS = [
-  { id: 'salgados', label: 'Pastéis Salgados' },
-  { id: 'doces', label: 'Pastéis Doces' },
-]
-
-export function PasteisSection() {
+export function PasteisSection({ lang }: { lang: Lang }) {
+  const t = translations[lang]
   const [sub, setSub] = useState('salgados')
+
+  const SUBTABS = [
+    { id: 'salgados', label: t.subtabs.salgados },
+    { id: 'doces', label: t.subtabs.doces },
+  ]
 
   return (
     <div className="flex flex-col gap-4">
@@ -25,19 +21,19 @@ export function PasteisSection() {
       {sub === 'salgados' && (
         <>
           <SectionCard>
-            <GroupTitle price={pasteisPrecos.tradicionais}>Tradicionais</GroupTitle>
+            <GroupTitle price={localizePrice(pasteisPrecos.tradicionais, lang)}>{t.subtabs.tradicionais}</GroupTitle>
             <div>
               {pasteisSalgadosTradicionais.map((item) => (
-                <MenuItemRow key={item.numero} item={item} />
+                <MenuItemRow key={item.numero} item={item} lang={lang} />
               ))}
             </div>
           </SectionCard>
 
           <SectionCard>
-            <GroupTitle price={pasteisPrecos.especiais}>Especiais</GroupTitle>
+            <GroupTitle price={localizePrice(pasteisPrecos.especiais, lang)}>{t.subtabs.especiais}</GroupTitle>
             <div>
               {pasteisSalgadosEspeciais.map((item) => (
-                <MenuItemRow key={item.numero} item={item} />
+                <MenuItemRow key={item.numero} item={item} lang={lang} />
               ))}
             </div>
           </SectionCard>
@@ -46,16 +42,16 @@ export function PasteisSection() {
 
       {sub === 'doces' && (
         <SectionCard>
-          <GroupTitle price={pasteisPrecos.doces}>Qualquer sabor</GroupTitle>
+          <GroupTitle price={localizePrice(pasteisPrecos.doces, lang)}>{t.anyFlavor}</GroupTitle>
           <div>
             {pasteisDoces.map((item) => (
-              <MenuItemRow key={item.numero} item={item} />
+              <MenuItemRow key={item.numero} item={item} lang={lang} />
             ))}
           </div>
         </SectionCard>
       )}
 
-      <Notice>{pasteisAviso}</Notice>
+      <Notice>{t.notices.pastelFresh}</Notice>
     </div>
   )
 }

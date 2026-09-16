@@ -5,19 +5,21 @@ import { PasteisSection } from './components/PasteisSection'
 import { PizzasSection } from './components/PizzasSection'
 import { PorcoesSection } from './components/PorcoesSection'
 import { Tabs } from './components/Tabs'
+import { translations, type Lang } from './utils/translations'
 
 const ICON_BASE = `${import.meta.env.BASE_URL}icons/`
 
-const MAIN_TABS = [
-  { id: 'pasteis', label: 'Pastéis', icon: `${ICON_BASE}pastel.png` },
-  { id: 'pizzas', label: 'Pizzas', icon: `${ICON_BASE}pizza.png` },
-  { id: 'esfihas', label: 'Esfihas', icon: `${ICON_BASE}esfiha.png` },
-  { id: 'porcoes', label: 'Porções', icon: `${ICON_BASE}porcao.png` },
-]
-
 function App() {
   const [tab, setTab] = useState('pasteis')
-  const [lang, setLang] = useState<'pt' | 'en'>('pt')
+  const [lang, setLang] = useState<Lang>('pt')
+  const t = translations[lang]
+
+  const MAIN_TABS = [
+    { id: 'pasteis', label: t.tabs.pasteis, icon: `${ICON_BASE}pastel.png` },
+    { id: 'pizzas', label: t.tabs.pizzas, icon: `${ICON_BASE}pizza.png` },
+    { id: 'esfihas', label: t.tabs.esfihas, icon: `${ICON_BASE}esfiha.png` },
+    { id: 'porcoes', label: t.tabs.porcoes, icon: `${ICON_BASE}porcao.png` },
+  ]
 
   return (
     <>
@@ -30,16 +32,16 @@ function App() {
       </div>
 
       <div className="relative z-10 mx-auto flex min-h-screen max-w-md flex-col gap-4 pb-8">
-        <Header lang={lang} setLang={setLang} />
+        <Header lang={lang} setLang={setLang} subtitle={t.salonMenu} />
 
         <div className="flex flex-1 flex-col gap-4 px-4">
           <Tabs options={MAIN_TABS} active={tab} onChange={setTab} variant="primary" />
 
           <main className="flex-1">
-            {tab === 'pasteis' && <PasteisSection />}
-            {tab === 'pizzas' && <PizzasSection />}
-            {tab === 'esfihas' && <EsfihasSection />}
-            {tab === 'porcoes' && <PorcoesSection />}
+            {tab === 'pasteis' && <PasteisSection lang={lang} />}
+            {tab === 'pizzas' && <PizzasSection lang={lang} />}
+            {tab === 'esfihas' && <EsfihasSection lang={lang} />}
+            {tab === 'porcoes' && <PorcoesSection lang={lang} />}
           </main>
         </div>
       </div>

@@ -1,22 +1,20 @@
 export interface MenuItem {
   numero: number
   nome: string
+  nomeEn?: string
   descricao?: string
+  descricaoEn?: string
   precoOverride?: string
-}
-
-export interface TamanhoPizza {
-  nome: string
-  fatias: number
-  preco: string
-  descricao: string
 }
 
 export interface ComboEsfiha {
   nome: string
+  nomeEn: string
   subtitulo: string
+  subtituloEn: string
   preco: string
   composicao: string[]
+  composicaoEn: string[]
 }
 
 export interface PorcaoItem {
@@ -27,61 +25,74 @@ export interface PorcaoItem {
   descricaoEn?: string
 }
 
+export function localizePrice(price: string, lang: 'pt' | 'en'): string {
+  if (lang === 'pt') return price
+  return price.replace(',', '.').replace('por fatia', 'per slice')
+}
+
+export function itemName(item: MenuItem, lang: 'pt' | 'en'): string {
+  return lang === 'en' && item.nomeEn ? item.nomeEn : item.nome
+}
+
+export function itemDescription(item: MenuItem, lang: 'pt' | 'en'): string | undefined {
+  return lang === 'en' ? item.descricaoEn ?? item.descricao : item.descricao
+}
+
 // ---------- PASTÉIS ----------
 
 export const pasteisSalgadosTradicionais: MenuItem[] = [
-  { numero: 1, nome: 'Carne, ovos e mussarela' },
-  { numero: 2, nome: 'Carne, cebola, tomate, gotas de limão e mussarela' },
-  { numero: 3, nome: 'Carne, catupiry e mussarela' },
-  { numero: 4, nome: 'Carne, cheddar e mussarela' },
-  { numero: 5, nome: 'Carne, bacon, mussarela e cheddar' },
-  { numero: 6, nome: 'Frango, catupiry e mussarela' },
-  { numero: 7, nome: 'Frango, cheddar e mussarela' },
-  { numero: 8, nome: 'Frango, milho, bacon e mussarela' },
-  { numero: 9, nome: 'Frango, creme de leite, milho, tomate e mussarela' },
-  { numero: 10, nome: 'Frango, palmito, ervilha, presunto e mussarela' },
-  { numero: 11, nome: 'Frango, milho, brócolis e mussarela' },
-  { numero: 12, nome: 'Frango, brócolis, bacon, catupiry e mussarela' },
-  { numero: 13, nome: 'Calabresa, cheddar e mussarela' },
-  { numero: 14, nome: 'Calabresa, catupiry e mussarela' },
-  { numero: 15, nome: 'Calabresa, bacon, ovo, cebola e mussarela' },
-  { numero: 16, nome: 'Calabresa, tomate, cebola, pimentão e mussarela' },
-  { numero: 17, nome: 'Calabresa, milho, ervilha, pimentão e mussarela' },
-  { numero: 18, nome: 'Calabresa, catupiry, milho e mussarela' },
-  { numero: 19, nome: 'Calabresa, azeitonas e mussarela' },
-  { numero: 20, nome: 'Presunto, ovo, cebola e mussarela' },
-  { numero: 21, nome: 'Presunto, tomate, orégano, azeitonas e mussarela' },
-  { numero: 22, nome: 'Presunto, ervilha, requeijão, ovo e mussarela' },
-  { numero: 23, nome: 'Presunto, bacon, requeijão e mussarela' },
-  { numero: 24, nome: 'Mussarela, parmesão, provolone e requeijão' },
-  { numero: 25, nome: 'Mussarela, parmesão, provolone, requeijão e cheddar' },
-  { numero: 26, nome: 'Mussarela e milho' },
-  { numero: 27, nome: 'Palmito, mussarela e azeitonas' },
-  { numero: 28, nome: 'Palmito, bacon, mussarela e parmesão' },
-  { numero: 29, nome: 'Palmito, bacon, champignon e mussarela' },
-  { numero: 30, nome: 'Atum, azeitonas e mussarela' },
-  { numero: 31, nome: 'Lombo canadense, creme de leite, milho, tomate e mussarela' },
-  { numero: 32, nome: 'Lombo canadense, parmesão, requeijão e mussarela' },
-  { numero: 33, nome: 'Peito de peru defumado, requeijão e mussarela' },
+  { numero: 1, nome: 'Carne, ovos e mussarela', nomeEn: 'Ground beef, boiled eggs and mozzarella' },
+  { numero: 2, nome: 'Carne, cebola, tomate, gotas de limão e mussarela', nomeEn: 'Ground beef, onion, tomato, a splash of lime and mozzarella' },
+  { numero: 3, nome: 'Carne, catupiry e mussarela', nomeEn: 'Ground beef, Catupiry cream cheese and mozzarella' },
+  { numero: 4, nome: 'Carne, cheddar e mussarela', nomeEn: 'Ground beef, cheddar and mozzarella' },
+  { numero: 5, nome: 'Carne, bacon, mussarela e cheddar', nomeEn: 'Ground beef, bacon, mozzarella and cheddar' },
+  { numero: 6, nome: 'Frango, catupiry e mussarela', nomeEn: 'Shredded chicken, Catupiry cream cheese and mozzarella' },
+  { numero: 7, nome: 'Frango, cheddar e mussarela', nomeEn: 'Shredded chicken, cheddar and mozzarella' },
+  { numero: 8, nome: 'Frango, milho, bacon e mussarela', nomeEn: 'Shredded chicken, corn, bacon and mozzarella' },
+  { numero: 9, nome: 'Frango, creme de leite, milho, tomate e mussarela', nomeEn: 'Shredded chicken, heavy cream, corn, tomato and mozzarella' },
+  { numero: 10, nome: 'Frango, palmito, ervilha, presunto e mussarela', nomeEn: 'Shredded chicken, heart of palm, peas, ham and mozzarella' },
+  { numero: 11, nome: 'Frango, milho, brócolis e mussarela', nomeEn: 'Shredded chicken, corn, broccoli and mozzarella' },
+  { numero: 12, nome: 'Frango, brócolis, bacon, catupiry e mussarela', nomeEn: 'Shredded chicken, broccoli, bacon, Catupiry cream cheese and mozzarella' },
+  { numero: 13, nome: 'Calabresa, cheddar e mussarela', nomeEn: 'Brazilian sausage, cheddar and mozzarella' },
+  { numero: 14, nome: 'Calabresa, catupiry e mussarela', nomeEn: 'Brazilian sausage, Catupiry cream cheese and mozzarella' },
+  { numero: 15, nome: 'Calabresa, bacon, ovo, cebola e mussarela', nomeEn: 'Brazilian sausage, bacon, egg, onion and mozzarella' },
+  { numero: 16, nome: 'Calabresa, tomate, cebola, pimentão e mussarela', nomeEn: 'Brazilian sausage, tomato, onion, bell pepper and mozzarella' },
+  { numero: 17, nome: 'Calabresa, milho, ervilha, pimentão e mussarela', nomeEn: 'Brazilian sausage, corn, peas, bell pepper and mozzarella' },
+  { numero: 18, nome: 'Calabresa, catupiry, milho e mussarela', nomeEn: 'Brazilian sausage, Catupiry cream cheese, corn and mozzarella' },
+  { numero: 19, nome: 'Calabresa, azeitonas e mussarela', nomeEn: 'Brazilian sausage, olives and mozzarella' },
+  { numero: 20, nome: 'Presunto, ovo, cebola e mussarela', nomeEn: 'Ham, egg, onion and mozzarella' },
+  { numero: 21, nome: 'Presunto, tomate, orégano, azeitonas e mussarela', nomeEn: 'Ham, tomato, oregano, olives and mozzarella' },
+  { numero: 22, nome: 'Presunto, ervilha, requeijão, ovo e mussarela', nomeEn: 'Ham, peas, cream cheese, egg and mozzarella' },
+  { numero: 23, nome: 'Presunto, bacon, requeijão e mussarela', nomeEn: 'Ham, bacon, cream cheese and mozzarella' },
+  { numero: 24, nome: 'Mussarela, parmesão, provolone e requeijão', nomeEn: 'Mozzarella, parmesan, provolone and cream cheese' },
+  { numero: 25, nome: 'Mussarela, parmesão, provolone, requeijão e cheddar', nomeEn: 'Mozzarella, parmesan, provolone, cream cheese and cheddar' },
+  { numero: 26, nome: 'Mussarela e milho', nomeEn: 'Mozzarella and corn' },
+  { numero: 27, nome: 'Palmito, mussarela e azeitonas', nomeEn: 'Heart of palm, mozzarella and olives' },
+  { numero: 28, nome: 'Palmito, bacon, mussarela e parmesão', nomeEn: 'Heart of palm, bacon, mozzarella and parmesan' },
+  { numero: 29, nome: 'Palmito, bacon, champignon e mussarela', nomeEn: 'Heart of palm, bacon, mushrooms and mozzarella' },
+  { numero: 30, nome: 'Atum, azeitonas e mussarela', nomeEn: 'Tuna, olives and mozzarella' },
+  { numero: 31, nome: 'Lombo canadense, creme de leite, milho, tomate e mussarela', nomeEn: 'Canadian bacon, heavy cream, corn, tomato and mozzarella' },
+  { numero: 32, nome: 'Lombo canadense, parmesão, requeijão e mussarela', nomeEn: 'Canadian bacon, parmesan, cream cheese and mozzarella' },
+  { numero: 33, nome: 'Peito de peru defumado, requeijão e mussarela', nomeEn: 'Smoked turkey breast, cream cheese and mozzarella' },
 ]
 
 export const pasteisSalgadosEspeciais: MenuItem[] = [
-  { numero: 34, nome: 'Salame italiano, calabresa, tomate, orégano e mussarela' },
-  { numero: 35, nome: 'Peperone, palmito, azeitonas e mussarela' },
-  { numero: 36, nome: 'Camarão, mussarela e catupiry' },
+  { numero: 34, nome: 'Salame italiano, calabresa, tomate, orégano e mussarela', nomeEn: 'Italian salami, Brazilian sausage, tomato, oregano and mozzarella' },
+  { numero: 35, nome: 'Peperone, palmito, azeitonas e mussarela', nomeEn: 'Pepperoni, heart of palm, olives and mozzarella' },
+  { numero: 36, nome: 'Camarão, mussarela e catupiry', nomeEn: 'Shrimp, mozzarella and Catupiry cream cheese' },
 ]
 
 export const pasteisDoces: MenuItem[] = [
-  { numero: 37, nome: 'Banana com chocolate preto' },
-  { numero: 38, nome: 'Banana com chocolate branco' },
-  { numero: 39, nome: 'Banana com doce de leite' },
-  { numero: 40, nome: 'Banana caramelizada com canela' },
-  { numero: 41, nome: 'Doce de leite com queijo' },
-  { numero: 42, nome: 'Coco com chocolate preto' },
-  { numero: 43, nome: 'Coco com chocolate branco' },
-  { numero: 44, nome: 'Chocolate preto com morangos' },
-  { numero: 45, nome: 'Chocolate branco com morangos' },
-  { numero: 46, nome: 'Chocolate oreo com morangos' },
+  { numero: 37, nome: 'Banana com chocolate preto', nomeEn: 'Banana with dark chocolate' },
+  { numero: 38, nome: 'Banana com chocolate branco', nomeEn: 'Banana with white chocolate' },
+  { numero: 39, nome: 'Banana com doce de leite', nomeEn: 'Banana with dulce de leche' },
+  { numero: 40, nome: 'Banana caramelizada com canela', nomeEn: 'Caramelized banana with cinnamon' },
+  { numero: 41, nome: 'Doce de leite com queijo', nomeEn: 'Dulce de leche with cheese' },
+  { numero: 42, nome: 'Coco com chocolate preto', nomeEn: 'Coconut with dark chocolate' },
+  { numero: 43, nome: 'Coco com chocolate branco', nomeEn: 'Coconut with white chocolate' },
+  { numero: 44, nome: 'Chocolate preto com morangos', nomeEn: 'Dark chocolate with strawberries' },
+  { numero: 45, nome: 'Chocolate branco com morangos', nomeEn: 'White chocolate with strawberries' },
+  { numero: 46, nome: 'Chocolate oreo com morangos', nomeEn: 'Oreo chocolate with strawberries' },
 ]
 
 export const pasteisPrecos = {
@@ -90,108 +101,89 @@ export const pasteisPrecos = {
   doces: '$8,00 +Tax',
 }
 
-export const pasteisAviso =
-  'Todos os pastéis são montados e fritos na hora. Você pode solicitar a retirada ou inclusão de ingredientes!'
-
 // ---------- PIZZAS ----------
 
-export const tamanhosPizza: TamanhoPizza[] = [
-  {
-    nome: 'Broto',
-    fatias: 6,
-    preco: '$27,00 +Tax',
-    descricao: 'até 2 sabores tradicionais',
-  },
-  {
-    nome: 'Grande',
-    fatias: 8,
-    preco: '$32,00 +Tax',
-    descricao: 'até 2 sabores tradicionais',
-  },
-  {
-    nome: 'Gigante',
-    fatias: 12,
-    preco: '$40,00 +Tax',
-    descricao: 'até 3 sabores tradicionais + Refrigerante de brinde',
-  },
-]
-
-export const pizzaBordaDestaque =
-  'Todas as pizzas acompanham borda recheada inclusa (Cheddar, Catupiry, Chocolate ou Doce de Leite).'
+export const pizzaSizePrices = {
+  broto: '$27,00 +Tax',
+  grande: '$32,00 +Tax',
+  gigante: '$40,00 +Tax',
+}
 
 export const pizzasSalgadasTradicionais: MenuItem[] = [
-  { numero: 1, nome: 'A Moda do Pizzaiolo', descricao: 'Milho, ervilha, pimentão e calabresa.' },
-  { numero: 2, nome: 'Atum', descricao: 'Atum e cebola.' },
-  { numero: 3, nome: 'Bacon', descricao: 'Bacon.' },
-  { numero: 4, nome: 'Bolonhesa', descricao: 'Carne moída ao molho bolonhesa, creme de leite e mussarela.' },
-  { numero: 5, nome: 'Brócolis', descricao: 'Brócolis e requeijão.' },
-  { numero: 6, nome: 'Caipira', descricao: 'Frango desfiado, bacon e milho.' },
-  { numero: 7, nome: 'Calabresa', descricao: 'Calabresa e cebola.' },
-  { numero: 8, nome: 'Catuperu', descricao: 'Peito de peru defumado e catupiry.' },
-  { numero: 9, nome: 'Cinco Queijos', descricao: 'Mussarela, parmesão, requeijão, provolone e cheddar.' },
-  { numero: 10, nome: 'Da Casa', descricao: 'Calabresa, pimentão picado, tomate e cebola.' },
-  { numero: 11, nome: 'Estação', descricao: 'Lombo defumado, creme de leite, tomate e abacaxi.' },
-  { numero: 12, nome: 'Francesa', descricao: 'Calabresa, ovo, bacon e cebola.' },
-  { numero: 13, nome: 'Frango com Catupiry', descricao: 'Frango desfiado coberto com catupiry.' },
-  { numero: 14, nome: 'Frango Supremo', descricao: 'Frango desfiado, tomate, creme de leite e milho verde.' },
-  { numero: 15, nome: 'Humita', descricao: 'Parmesão e milho verde.' },
-  { numero: 16, nome: 'Lombinho Supremo', descricao: 'Lombo defumado, parmesão, creme de leite, milho e tomate.' },
-  { numero: 17, nome: 'Madre', descricao: 'Palmito, bacon e parmesão.' },
-  { numero: 18, nome: 'Maracatu', descricao: 'Linguiça calabresa coberta com requeijão.' },
-  { numero: 19, nome: 'Mista', descricao: 'Presunto, frango, palmito e ervilha.' },
-  { numero: 20, nome: 'Mussarela', descricao: 'Mussarela e tomate.' },
-  { numero: 21, nome: 'Napolitana', descricao: 'Presunto, tomate e mussarela.' },
-  { numero: 22, nome: 'Pasqualina', descricao: 'Bacon, parmesão e requeijão.' },
-  { numero: 23, nome: 'Portuguesa', descricao: 'Presunto, ovo e cebola.' },
-  { numero: 24, nome: 'Quatro Queijos', descricao: 'Mussarela, parmesão, requeijão e provolone.' },
-  { numero: 25, nome: 'Romana', descricao: 'Presunto picado, bacon e requeijão.' },
-  { numero: 26, nome: 'Romanesca', descricao: 'Presunto, ervilha, requeijão e ovo.' },
-  { numero: 27, nome: 'Vegetariana', descricao: 'Palmito, brócolis, tomate, champignon, parmesão e tomate seco.' },
-  { numero: 28, nome: 'Toscana', descricao: 'Palmito, bacon e champignon.' },
+  { numero: 1, nome: 'A Moda do Pizzaiolo', descricao: 'Milho, ervilha, pimentão e calabresa.', descricaoEn: 'Corn, peas, bell pepper and Brazilian sausage.' },
+  { numero: 2, nome: 'Atum', descricao: 'Atum e cebola.', descricaoEn: 'Tuna and onion.' },
+  { numero: 3, nome: 'Bacon', descricao: 'Bacon.', descricaoEn: 'Bacon.' },
+  { numero: 4, nome: 'Bolonhesa', descricao: 'Carne moída ao molho bolonhesa, creme de leite e mussarela.', descricaoEn: 'Ground beef in bolognese sauce, heavy cream and mozzarella.' },
+  { numero: 5, nome: 'Brócolis', descricao: 'Brócolis e requeijão.', descricaoEn: 'Broccoli and cream cheese.' },
+  { numero: 6, nome: 'Caipira', descricao: 'Frango desfiado, bacon e milho.', descricaoEn: 'Shredded chicken, bacon and corn.' },
+  { numero: 7, nome: 'Calabresa', descricao: 'Calabresa e cebola.', descricaoEn: 'Brazilian sausage and onion.' },
+  { numero: 8, nome: 'Catuperu', descricao: 'Peito de peru defumado e catupiry.', descricaoEn: 'Smoked turkey breast and Catupiry cream cheese.' },
+  { numero: 9, nome: 'Cinco Queijos', descricao: 'Mussarela, parmesão, requeijão, provolone e cheddar.', descricaoEn: 'Mozzarella, parmesan, cream cheese, provolone and cheddar.' },
+  { numero: 10, nome: 'Da Casa', descricao: 'Calabresa, pimentão picado, tomate e cebola.', descricaoEn: 'Brazilian sausage, diced bell pepper, tomato and onion.' },
+  { numero: 11, nome: 'Estação', descricao: 'Lombo defumado, creme de leite, tomate e abacaxi.', descricaoEn: 'Smoked pork loin, heavy cream, tomato and pineapple.' },
+  { numero: 12, nome: 'Francesa', descricao: 'Calabresa, ovo, bacon e cebola.', descricaoEn: 'Brazilian sausage, egg, bacon and onion.' },
+  { numero: 13, nome: 'Frango com Catupiry', descricao: 'Frango desfiado coberto com catupiry.', descricaoEn: 'Shredded chicken topped with Catupiry cream cheese.' },
+  { numero: 14, nome: 'Frango Supremo', descricao: 'Frango desfiado, tomate, creme de leite e milho verde.', descricaoEn: 'Shredded chicken, tomato, heavy cream and sweet corn.' },
+  { numero: 15, nome: 'Humita', descricao: 'Parmesão e milho verde.', descricaoEn: 'Parmesan and sweet corn.' },
+  { numero: 16, nome: 'Lombinho Supremo', descricao: 'Lombo defumado, parmesão, creme de leite, milho e tomate.', descricaoEn: 'Smoked pork loin, parmesan, heavy cream, corn and tomato.' },
+  { numero: 17, nome: 'Madre', descricao: 'Palmito, bacon e parmesão.', descricaoEn: 'Heart of palm, bacon and parmesan.' },
+  { numero: 18, nome: 'Maracatu', descricao: 'Linguiça calabresa coberta com requeijão.', descricaoEn: 'Brazilian sausage topped with cream cheese.' },
+  { numero: 19, nome: 'Mista', descricao: 'Presunto, frango, palmito e ervilha.', descricaoEn: 'Ham, chicken, heart of palm and peas.' },
+  { numero: 20, nome: 'Mussarela', descricao: 'Mussarela e tomate.', descricaoEn: 'Mozzarella and tomato.' },
+  { numero: 21, nome: 'Napolitana', descricao: 'Presunto, tomate e mussarela.', descricaoEn: 'Ham, tomato and mozzarella.' },
+  { numero: 22, nome: 'Pasqualina', descricao: 'Bacon, parmesão e requeijão.', descricaoEn: 'Bacon, parmesan and cream cheese.' },
+  { numero: 23, nome: 'Portuguesa', descricao: 'Presunto, ovo e cebola.', descricaoEn: 'Ham, egg and onion.' },
+  { numero: 24, nome: 'Quatro Queijos', descricao: 'Mussarela, parmesão, requeijão e provolone.', descricaoEn: 'Mozzarella, parmesan, cream cheese and provolone.' },
+  { numero: 25, nome: 'Romana', descricao: 'Presunto picado, bacon e requeijão.', descricaoEn: 'Diced ham, bacon and cream cheese.' },
+  { numero: 26, nome: 'Romanesca', descricao: 'Presunto, ervilha, requeijão e ovo.', descricaoEn: 'Ham, peas, cream cheese and egg.' },
+  { numero: 27, nome: 'Vegetariana', descricao: 'Palmito, brócolis, tomate, champignon, parmesão e tomate seco.', descricaoEn: 'Heart of palm, broccoli, tomato, mushrooms, parmesan and sun-dried tomato.' },
+  { numero: 28, nome: 'Toscana', descricao: 'Palmito, bacon e champignon.', descricaoEn: 'Heart of palm, bacon and mushrooms.' },
 ]
 
 export const pizzasSalgadasEspeciais: MenuItem[] = [
-  { numero: 29, nome: 'Camarão', descricao: 'Camarão ao molho coberto com catupiry.', precoOverride: '+$1,00 por fatia' },
-  { numero: 30, nome: 'Carioca', descricao: 'Filé mignon, tomate, cebola e alho.' },
-  { numero: 31, nome: 'Filé com Cheddar', descricao: 'Filé mignon coberto com cheddar.' },
-  { numero: 32, nome: 'Filé Quatro Queijos', descricao: 'Filé mignon, parmesão, provolone, requeijão e mussarela.' },
-  { numero: 33, nome: 'Mignon', descricao: 'Filé mignon e parmesão.' },
-  { numero: 34, nome: 'Strogonoff de Carne', descricao: 'Estrogonofe de filé mignon, champignon e batata palha.' },
+  { numero: 29, nome: 'Camarão', descricao: 'Camarão ao molho coberto com catupiry.', descricaoEn: 'Shrimp in sauce topped with Catupiry cheese.', precoOverride: '+$1,00 por fatia' },
+  { numero: 30, nome: 'Carioca', descricao: 'Filé mignon, tomate, cebola e alho.', descricaoEn: 'Filet mignon, tomato, onion and garlic.' },
+  { numero: 31, nome: 'Filé com Cheddar', descricao: 'Filé mignon coberto com cheddar.', descricaoEn: 'Filet mignon topped with cheddar.' },
+  { numero: 32, nome: 'Filé Quatro Queijos', descricao: 'Filé mignon, parmesão, provolone, requeijão e mussarela.', descricaoEn: 'Filet mignon, parmesan, provolone, cream cheese and mozzarella.' },
+  { numero: 33, nome: 'Mignon', descricao: 'Filé mignon e parmesão.', descricaoEn: 'Filet mignon and parmesan.' },
+  { numero: 34, nome: 'Strogonoff de Carne', descricao: 'Estrogonofe de filé mignon, champignon e batata palha.', descricaoEn: 'Beef stroganoff with filet mignon, mushrooms and crispy potato sticks.' },
 ]
 
 export const pizzasDoces: MenuItem[] = [
-  { numero: 35, nome: 'Abacaxi com Chocolate Branco', descricao: 'Abacaxi, mussarela, creme de leite e chocolate branco.' },
-  { numero: 36, nome: 'Abacaxi Caramelizado com Canela', descricao: 'Abacaxi, mussarela, creme de leite com caramelo e canela.' },
-  { numero: 37, nome: 'Banana com Chocolate Preto', descricao: 'Banana, mussarela, creme de leite e chocolate preto.' },
-  { numero: 38, nome: 'Banana com Chocolate Branco', descricao: 'Banana, mussarela, creme de leite e chocolate branco.' },
-  { numero: 39, nome: 'Banana Caramelizada com Canela', descricao: 'Banana, mussarela, creme de leite com caramelo e canela.' },
-  { numero: 40, nome: 'Beijinho', descricao: 'Mussarela, creme de leite, coco, chocolate branco e leite condensado.' },
-  { numero: 41, nome: 'Chocolate Branco', descricao: 'Mussarela, creme de leite e chocolate branco.' },
-  { numero: 42, nome: 'Chocolate Preto', descricao: 'Mussarela, creme de leite e chocolate ao leite.' },
-  { numero: 43, nome: 'Confete', descricao: 'Mussarela, creme de leite, chocolate ao leite e confetes.' },
-  { numero: 44, nome: 'Kinder', descricao: 'Chocolate preto ou branco coberto com leite ninho.' },
-  { numero: 45, nome: 'Krot', descricao: 'Mussarela, chocolate ao leite coberto com amendoim.' },
-  { numero: 46, nome: 'Mesclada', descricao: 'Mussarela, creme de leite, chocolate branco e chocolate ao leite.' },
-  { numero: 47, nome: 'Prestígio', descricao: 'Mussarela, creme de leite, coco e chocolate ao leite.' },
-  { numero: 48, nome: 'Sedução', descricao: 'Mussarela, creme de leite, chocolate branco, morango e leite condensado.' },
-  { numero: 49, nome: 'Sensação', descricao: 'Mussarela, creme de leite, chocolate ao leite e morango.' },
+  { numero: 35, nome: 'Abacaxi com Chocolate Branco', descricao: 'Abacaxi, mussarela, creme de leite e chocolate branco.', descricaoEn: 'Pineapple, mozzarella, heavy cream and white chocolate.' },
+  { numero: 36, nome: 'Abacaxi Caramelizado com Canela', descricao: 'Abacaxi, mussarela, creme de leite com caramelo e canela.', descricaoEn: 'Pineapple, mozzarella, heavy cream with caramel and cinnamon.' },
+  { numero: 37, nome: 'Banana com Chocolate Preto', descricao: 'Banana, mussarela, creme de leite e chocolate preto.', descricaoEn: 'Banana, mozzarella, heavy cream and dark chocolate.' },
+  { numero: 38, nome: 'Banana com Chocolate Branco', descricao: 'Banana, mussarela, creme de leite e chocolate branco.', descricaoEn: 'Banana, mozzarella, heavy cream and white chocolate.' },
+  { numero: 39, nome: 'Banana Caramelizada com Canela', descricao: 'Banana, mussarela, creme de leite com caramelo e canela.', descricaoEn: 'Banana, mozzarella, heavy cream with caramel and cinnamon.' },
+  { numero: 40, nome: 'Beijinho', descricao: 'Mussarela, creme de leite, coco, chocolate branco e leite condensado.', descricaoEn: 'Mozzarella, heavy cream, coconut, white chocolate and condensed milk.' },
+  { numero: 41, nome: 'Chocolate Branco', descricao: 'Mussarela, creme de leite e chocolate branco.', descricaoEn: 'Mozzarella, heavy cream and white chocolate.' },
+  { numero: 42, nome: 'Chocolate Preto', descricao: 'Mussarela, creme de leite e chocolate ao leite.', descricaoEn: 'Mozzarella, heavy cream and milk chocolate.' },
+  { numero: 43, nome: 'Confete', descricao: 'Mussarela, creme de leite, chocolate ao leite e confetes.', descricaoEn: 'Mozzarella, heavy cream, milk chocolate and chocolate sprinkles.' },
+  { numero: 44, nome: 'Kinder', descricao: 'Chocolate preto ou branco coberto com leite ninho.', descricaoEn: 'Dark or white chocolate topped with milk powder.' },
+  { numero: 45, nome: 'Krot', descricao: 'Mussarela, chocolate ao leite coberto com amendoim.', descricaoEn: 'Mozzarella, milk chocolate topped with peanuts.' },
+  { numero: 46, nome: 'Mesclada', descricao: 'Mussarela, creme de leite, chocolate branco e chocolate ao leite.', descricaoEn: 'Mozzarella, heavy cream, white chocolate and milk chocolate.' },
+  { numero: 47, nome: 'Prestígio', descricao: 'Mussarela, creme de leite, coco e chocolate ao leite.', descricaoEn: 'Mozzarella, heavy cream, coconut and milk chocolate.' },
+  { numero: 48, nome: 'Sedução', descricao: 'Mussarela, creme de leite, chocolate branco, morango e leite condensado.', descricaoEn: 'Mozzarella, heavy cream, white chocolate, strawberry and condensed milk.' },
+  { numero: 49, nome: 'Sensação', descricao: 'Mussarela, creme de leite, chocolate ao leite e morango.', descricaoEn: 'Mozzarella, heavy cream, milk chocolate and strawberry.' },
 ]
-
-export const pizzaSalgadaAcompanha =
-  'Todas as pizzas salgadas acompanham: molho de tomate, azeitonas, orégano e mussarela.'
 
 // ---------- ESFIHAS ----------
 
 export const combosEsfihas: ComboEsfiha[] = [
   {
     nome: 'Combo Eu',
+    nomeEn: 'Solo Combo',
     subtitulo: '7 Esfihas + 1 Refrigerante Lata',
+    subtituloEn: '7 Esfihas + 1 Canned Soda',
     preco: '$23,00 +Tax',
     composicao: ['2 de carne', '2 de calabresa com queijo', '2 de frango com catupiry', '1 de quatro queijos'],
+    composicaoEn: ['2 beef', '2 sausage with cheese', '2 chicken with Catupiry', '1 four cheese'],
   },
   {
     nome: 'Combo Eu e Você',
+    nomeEn: 'Me & You Combo',
     subtitulo: '15 Esfihas + 2 Refrigerante Lata',
+    subtituloEn: '15 Esfihas + 2 Canned Sodas',
     preco: '$51,00 +Tax',
     composicao: [
       '3 de carne',
@@ -200,16 +192,28 @@ export const combosEsfihas: ComboEsfiha[] = [
       '3 de quatro queijos',
       '3 de bacon com queijo',
     ],
+    composicaoEn: [
+      '3 beef',
+      '3 sausage with cheese',
+      '3 chicken with Catupiry',
+      '3 four cheese',
+      '3 bacon with cheese',
+    ],
   },
   {
     nome: 'Combo Nós',
+    nomeEn: 'Us Combo',
     subtitulo: '20 Esfihas + 1 Refrigerante 2L',
+    subtituloEn: '20 Esfihas + 1 2L Soda',
     preco: '$60,00 +Tax',
     composicao: ['5 de carne', '5 de calabresa com queijo', '5 de frango com catupiry', '5 de quatro queijos'],
+    composicaoEn: ['5 beef', '5 sausage with cheese', '5 chicken with Catupiry', '5 four cheese'],
   },
   {
     nome: 'Combo Galera',
+    nomeEn: 'Squad Combo',
     subtitulo: '30 Esfihas + 1 Refrigerante 2L',
+    subtituloEn: '30 Esfihas + 1 2L Soda',
     preco: '$99,00 +Tax',
     composicao: [
       '5 de carne',
@@ -219,38 +223,46 @@ export const combosEsfihas: ComboEsfiha[] = [
       '5 de quatro queijos',
       '5 a sua escolha',
     ],
+    composicaoEn: [
+      '5 beef',
+      '5 sausage with cheese',
+      '5 chicken with Catupiry',
+      '5 bacon with cheese',
+      '5 four cheese',
+      '5 of your choice',
+    ],
   },
 ]
 
 export const esfihasSalgadas: MenuItem[] = [
-  { numero: 1, nome: 'Calabresa com queijo' },
-  { numero: 2, nome: 'Carne, tomate e cebola' },
-  { numero: 3, nome: 'Frango com catupiry' },
-  { numero: 4, nome: 'Bacon com queijo' },
-  { numero: 5, nome: 'Brócolis com catupiry' },
-  { numero: 6, nome: 'Atum, cebola e milho' },
-  { numero: 7, nome: 'Brócolis, bacon e catupiry' },
-  { numero: 8, nome: 'Calabresa, queijo e catupiry' },
-  { numero: 9, nome: 'Quatro queijos' },
-  { numero: 10, nome: 'Presunto, ovo, cebola e queijo' },
-  { numero: 11, nome: 'Palmito, bacon e parmesão' },
-  { numero: 12, nome: 'Camarão, queijo e catupiry', precoOverride: '$4,00 +Tax' },
-  { numero: 13, nome: 'Espinafre com queijo', precoOverride: '$4,00 +Tax' },
+  { numero: 1, nome: 'Calabresa com queijo', nomeEn: 'Sausage with cheese' },
+  { numero: 2, nome: 'Carne, tomate e cebola', nomeEn: 'Beef, tomato and onion' },
+  { numero: 3, nome: 'Frango com catupiry', nomeEn: 'Chicken with Catupiry' },
+  { numero: 4, nome: 'Bacon com queijo', nomeEn: 'Bacon with cheese' },
+  { numero: 5, nome: 'Brócolis com catupiry', nomeEn: 'Broccoli with Catupiry' },
+  { numero: 6, nome: 'Atum, cebola e milho', nomeEn: 'Tuna, onion and corn' },
+  { numero: 7, nome: 'Brócolis, bacon e catupiry', nomeEn: 'Broccoli, bacon and Catupiry' },
+  { numero: 8, nome: 'Calabresa, queijo e catupiry', nomeEn: 'Sausage, cheese and Catupiry' },
+  { numero: 9, nome: 'Quatro queijos', nomeEn: 'Four cheese' },
+  { numero: 10, nome: 'Presunto, ovo, cebola e queijo', nomeEn: 'Ham, egg, onion and cheese' },
+  { numero: 11, nome: 'Palmito, bacon e parmesão', nomeEn: 'Heart of palm, bacon and parmesan' },
+  { numero: 12, nome: 'Camarão, queijo e catupiry', nomeEn: 'Shrimp, cheese and Catupiry', precoOverride: '$4,00 +Tax' },
+  { numero: 13, nome: 'Espinafre com queijo', nomeEn: 'Spinach with cheese', precoOverride: '$4,00 +Tax' },
 ]
 
 export const esfihasSalgadasPrecoBase = '$3,50 +Tax'
 
 export const esfihasDoces: MenuItem[] = [
-  { numero: 14, nome: 'Abacaxi com chocolate branco' },
-  { numero: 15, nome: 'Abacaxi caramelizado com canela' },
-  { numero: 16, nome: 'Banana com chocolate preto' },
-  { numero: 17, nome: 'Banana com chocolate branco' },
-  { numero: 18, nome: 'Banana caramelizada com canela' },
+  { numero: 14, nome: 'Abacaxi com chocolate branco', nomeEn: 'Pineapple with white chocolate' },
+  { numero: 15, nome: 'Abacaxi caramelizado com canela', nomeEn: 'Caramelized pineapple with cinnamon' },
+  { numero: 16, nome: 'Banana com chocolate preto', nomeEn: 'Banana with dark chocolate' },
+  { numero: 17, nome: 'Banana com chocolate branco', nomeEn: 'Banana with white chocolate' },
+  { numero: 18, nome: 'Banana caramelizada com canela', nomeEn: 'Caramelized banana with cinnamon' },
   { numero: 19, nome: 'Beijinho' },
-  { numero: 20, nome: 'Chocolate branco' },
-  { numero: 21, nome: 'Chocolate preto' },
+  { numero: 20, nome: 'Chocolate branco', nomeEn: 'White chocolate' },
+  { numero: 21, nome: 'Chocolate preto', nomeEn: 'Dark chocolate' },
   { numero: 22, nome: 'Confete' },
-  { numero: 23, nome: 'Kinder chocolate preto ou branco coberto com leite ninho' },
+  { numero: 23, nome: 'Kinder chocolate preto ou branco coberto com leite ninho', nomeEn: 'Kinder dark or white chocolate topped with milk powder' },
   { numero: 24, nome: 'Krot' },
   { numero: 25, nome: 'Mesclada' },
   { numero: 26, nome: 'Prestígio' },
@@ -262,48 +274,45 @@ export const esfihasDoces: MenuItem[] = [
 
 export const esfihasDocesPreco = '$4,00 +Tax'
 
-export const esfihasAvisoVendaMinima =
-  'Venda mínima de 5 esfihas individuais, podendo ser uma de cada sabor.'
-
 // ---------- PORÇÕES / MASSAS ----------
 
 export const porcoes: PorcaoItem[] = [
   { nome: 'Batata Frita', nomeEn: 'French Fries', preco: '$12,00 +Tax' },
   {
     nome: 'Batata Frita com Cheddar e Bacon',
-    nomeEn: 'French Fries with Cheddar and Bacon',
+    nomeEn: 'French Fries with Melted Cheddar and Bacon',
     preco: '$17,00 +Tax',
   },
   { nome: 'Anéis de Cebola à Milanesa', nomeEn: 'Breaded Onion Rings', preco: '$14,00 +Tax' },
-  { nome: 'Frango à Passarinho', nomeEn: 'Chicken Wings', preco: '$20,00 +Tax' },
-  { nome: 'Mandioca Frita', preco: '$12,00 +Tax' },
-  { nome: 'Mandioca Frita com Queijo Mussarela', preco: '$15,00 +Tax' },
+  { nome: 'Frango à Passarinho', nomeEn: 'Crispy Garlic Fried Chicken Wings', preco: '$20,00 +Tax' },
+  { nome: 'Mandioca Frita', nomeEn: 'Fried Cassava', preco: '$12,00 +Tax' },
+  { nome: 'Mandioca Frita com Queijo Mussarela', nomeEn: 'Fried Cassava with Mozzarella Cheese', preco: '$15,00 +Tax' },
   {
     nome: 'Tábua Frita',
     nomeEn: 'Fried Platter',
     preco: '$35,00 +Tax',
     descricao: 'Batata frita, frango à passarinho, anéis de cebola à milanesa, batata frita com cheddar e bacon.',
-    descricaoEn: 'French fries, chicken wings, breaded onion rings, French fries with cheddar and bacon.',
+    descricaoEn: 'French fries, crispy fried chicken wings, breaded onion rings, French fries with melted cheddar and bacon.',
   },
   {
+    // Nome tradicional mantido intacto (PT e EN)
     nome: 'Entrevero',
-    nomeEn: 'Mixed Platter',
     preco: '$60,00 +Tax',
     descricao:
       'Carne de boi, frango, calabresa, barriguinha de porco, cebola, pimentão, batata frita, mandioca frita, anéis de cebola à milanesa, batata frita com cheddar e bacon, vinagrete e farofa. (300g de cada ingrediente)',
     descricaoEn:
-      'Beef, chicken, brazilian sausage, pork belly, onion, bell pepper, French fries, fried cassava, breaded onion rings, French fries with cheddar and bacon, vinaigrette, and toasted manioc flour.',
+      'Beef, chicken, Brazilian sausage, pork belly, onion, bell pepper, French fries, fried cassava, breaded onion rings, French fries with melted cheddar and bacon, vinaigrette, and toasted cassava flour. (300g of each ingredient)',
   },
 ]
 
 export const massas: PorcaoItem[] = [
   {
+    // Nome tradicional mantido intacto (PT e EN)
     nome: 'Macarrão na Chapa (900g)',
-    nomeEn: 'Grilled Pasta',
     preco: '$19,00 +Tax',
     descricao:
       'Filé mignon, frango, calabresa, bacon, presunto, milho, tomate, pimentão, cebola, alho, azeitona, palmito, mussarela, cheiro verde e ovo frito.',
     descricaoEn:
-      'Filet mignon, chicken, calabrese sausage, bacon, ham, corn, tomato, bell pepper, onion, garlic, olives, heart of palm, mozzarella, parsley, fried egg.',
+      'Filet mignon, chicken, Brazilian sausage, bacon, ham, corn, tomato, bell pepper, onion, garlic, olives, heart of palm, mozzarella, parsley, fried egg.',
   },
 ]

@@ -1,44 +1,46 @@
 import { useState } from 'react'
 import {
-  pizzaBordaDestaque,
-  pizzaSalgadaAcompanha,
+  localizePrice,
+  pizzaSizePrices,
   pizzasDoces,
   pizzasSalgadasEspeciais,
   pizzasSalgadasTradicionais,
-  tamanhosPizza,
 } from '../data/menu'
+import { translations, type Lang } from '../utils/translations'
 import { MenuItemRow } from './MenuItemRow'
 import { GroupTitle, Notice, SectionCard } from './SectionCard'
 import { Tabs } from './Tabs'
 
-const SUBTABS = [
-  { id: 'salgadas', label: 'Pizzas Salgadas' },
-  { id: 'doces', label: 'Pizzas Doces' },
-]
-
-export function PizzasSection() {
+export function PizzasSection({ lang }: { lang: Lang }) {
+  const t = translations[lang]
   const [sub, setSub] = useState('salgadas')
+
+  const SUBTABS = [
+    { id: 'salgadas', label: t.subtabs.salgados },
+    { id: 'doces', label: t.subtabs.doces },
+  ]
+
+  const sizes = [
+    { key: 'broto', label: t.sizes.broto, preco: pizzaSizePrices.broto },
+    { key: 'grande', label: t.sizes.grande, preco: pizzaSizePrices.grande },
+    { key: 'gigante', label: t.sizes.gigante, preco: pizzaSizePrices.gigante },
+  ]
 
   return (
     <div className="flex flex-col gap-4">
       <SectionCard>
-        <GroupTitle>Tamanhos</GroupTitle>
+        <GroupTitle>{t.sizes.title}</GroupTitle>
         <div className="flex flex-col gap-2">
-          {tamanhosPizza.map((t) => (
-            <div key={t.nome} className="flex items-center justify-between gap-3 rounded-xl bg-white/5 px-3 py-2">
-              <div>
-                <p className="text-sm font-bold text-white">
-                  {t.nome} · {t.fatias} fatias
-                </p>
-                <p className="text-xs text-white/60">{t.descricao}</p>
-              </div>
+          {sizes.map((s) => (
+            <div key={s.key} className="flex items-center justify-between gap-3 rounded-xl bg-white/5 px-3 py-2">
+              <p className="text-sm font-bold text-white">{s.label}</p>
               <span className="whitespace-nowrap rounded-full bg-orange-500/90 px-2.5 py-1 text-xs font-bold text-white">
-                {t.preco}
+                {localizePrice(s.preco, lang)}
               </span>
             </div>
           ))}
         </div>
-        <p className="mt-3 text-center text-xs font-semibold text-orange-200">{pizzaBordaDestaque}</p>
+        <p className="mt-3 text-center text-xs font-semibold text-orange-200">{t.sizes.crustNotice}</p>
       </SectionCard>
 
       <Tabs options={SUBTABS} active={sub} onChange={setSub} variant="secondary" />
@@ -46,33 +48,39 @@ export function PizzasSection() {
       {sub === 'salgadas' && (
         <>
           <SectionCard>
-            <GroupTitle>Sabores Tradicionais</GroupTitle>
+            <GroupTitle>
+              {t.flavors} {t.subtabs.tradicionais}
+            </GroupTitle>
             <div>
               {pizzasSalgadasTradicionais.map((item) => (
-                <MenuItemRow key={item.numero} item={item} />
+                <MenuItemRow key={item.numero} item={item} lang={lang} />
               ))}
             </div>
           </SectionCard>
 
           <SectionCard>
-            <GroupTitle>Sabores Especiais</GroupTitle>
+            <GroupTitle>
+              {t.flavors} {t.subtabs.especiais}
+            </GroupTitle>
             <div>
               {pizzasSalgadasEspeciais.map((item) => (
-                <MenuItemRow key={item.numero} item={item} />
+                <MenuItemRow key={item.numero} item={item} lang={lang} />
               ))}
             </div>
           </SectionCard>
 
-          <Notice>{pizzaSalgadaAcompanha}</Notice>
+          <Notice>{t.notices.pizzaToppings}</Notice>
         </>
       )}
 
       {sub === 'doces' && (
         <SectionCard>
-          <GroupTitle>Sabores Doces</GroupTitle>
+          <GroupTitle>
+            {t.flavors} {t.subtabs.doces}
+          </GroupTitle>
           <div>
             {pizzasDoces.map((item) => (
-              <MenuItemRow key={item.numero} item={item} />
+              <MenuItemRow key={item.numero} item={item} lang={lang} />
             ))}
           </div>
         </SectionCard>
