@@ -1,7 +1,9 @@
+import type { ReactNode } from 'react'
+
 interface TabOption {
   id: string
   label: string
-  emoji?: string
+  icon?: ReactNode
 }
 
 interface TabsProps {
@@ -37,7 +39,7 @@ export function Tabs({ options, active, onChange, variant = 'primary' }: TabsPro
                 : 'text-white/70 hover:bg-white/10 hover:text-white',
             ].join(' ')}
           >
-            {isPrimary && opt.emoji && <span className="text-xl leading-none">{opt.emoji}</span>}
+            {isPrimary && opt.icon && <span className="flex h-6 items-center justify-center">{opt.icon}</span>}
             <span>{opt.label}</span>
           </button>
         )
