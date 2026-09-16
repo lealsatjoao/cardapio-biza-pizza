@@ -39,7 +39,7 @@ export function Tabs({ options, active, onChange, variant = 'primary' }: TabsPro
                 : 'text-white/70 hover:bg-white/10 hover:text-white',
             ].join(' ')}
           >
-            {isPrimary && opt.icon && <span className="flex h-6 items-center justify-center">{opt.icon}</span>}
+            {isPrimary && opt.icon && <span className="flex h-8 items-center justify-center">{opt.icon}</span>}
             <span>{opt.label}</span>
           </button>
         )
