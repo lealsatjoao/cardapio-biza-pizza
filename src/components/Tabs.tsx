@@ -18,8 +18,8 @@ export function Tabs({ options, active, onChange, variant = 'primary' }: TabsPro
     <div
       className={
         isPrimary
-          ? 'grid grid-cols-4 gap-1.5 rounded-2xl bg-black/40 p-1.5 backdrop-blur-md ring-1 ring-white/10'
-          : 'flex gap-2 overflow-x-auto rounded-xl bg-black/30 p-1 backdrop-blur-md ring-1 ring-white/10'
+          ? 'scrollbar-none flex gap-1.5 overflow-x-auto rounded-2xl bg-black/40 p-1.5 backdrop-blur-md ring-1 ring-white/10'
+          : 'scrollbar-none flex gap-2 overflow-x-auto rounded-xl bg-black/30 p-1 backdrop-blur-md ring-1 ring-white/10'
       }
     >
       {options.map((opt) => {
@@ -31,7 +31,7 @@ export function Tabs({ options, active, onChange, variant = 'primary' }: TabsPro
             onClick={() => onChange(opt.id)}
             className={[
               'shrink-0 rounded-xl font-semibold transition-all duration-200',
-              isPrimary ? 'flex flex-col items-center px-2 py-2.5 text-[11px]' : 'px-3.5 py-2 text-xs whitespace-nowrap',
+              isPrimary ? 'flex min-w-[68px] flex-1 flex-col items-center px-2 py-2.5 text-[11px]' : 'px-3.5 py-2 text-xs whitespace-nowrap',
               isActive
                 ? 'bg-orange-500 text-white shadow-lg shadow-orange-900/40'
                 : 'text-white/70 hover:bg-white/10 hover:text-white',

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { BebidasSection } from './components/BebidasSection'
 import { EsfihasSection } from './components/EsfihasSection'
 import { Header } from './components/Header'
 import { PasteisSection } from './components/PasteisSection'
@@ -19,6 +20,7 @@ function App() {
     { id: 'pizzas', label: t.tabs.pizzas, icon: `${ICON_BASE}pizza.png` },
     { id: 'esfihas', label: t.tabs.esfihas, icon: `${ICON_BASE}esfiha.png` },
     { id: 'porcoes', label: t.tabs.porcoes, icon: `${ICON_BASE}porcao.png` },
+    { id: 'bebidas', label: t.tabs.bebidas, icon: `${ICON_BASE}bebidas.png` },
   ]
 
   return (
@@ -42,6 +44,7 @@ function App() {
             {tab === 'pizzas' && <PizzasSection lang={lang} />}
             {tab === 'esfihas' && <EsfihasSection lang={lang} />}
             {tab === 'porcoes' && <PorcoesSection lang={lang} />}
+            {tab === 'bebidas' && <BebidasSection lang={lang} />}
           </main>
         </div>
       </div>

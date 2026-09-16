@@ -316,3 +316,25 @@ export const massas: PorcaoItem[] = [
       'Filet mignon, chicken, Brazilian sausage, bacon, ham, corn, tomato, bell pepper, onion, garlic, olives, heart of palm, mozzarella, parsley, fried egg.',
   },
 ]
+
+// ---------- BEBIDAS ----------
+
+export interface Bebida {
+  nome: string
+  nomeEn?: string
+}
+
+export const refrigerantes: Bebida[] = [
+  { nome: 'Guaraná Antarctica' },
+  { nome: 'Fanta Laranja', nomeEn: 'Fanta Orange' },
+  { nome: 'Pepsi' },
+  { nome: 'Sprite' },
+]
+
+export const sucos: Bebida[] = [
+  { nome: 'Maracujá', nomeEn: 'Passion Fruit' },
+  { nome: 'Abacaxi', nomeEn: 'Pineapple' },
+  { nome: 'Morango', nomeEn: 'Strawberry' },
+  { nome: 'Manga', nomeEn: 'Mango' },
+  { nome: 'Goiaba', nomeEn: 'Guava' },
+]
