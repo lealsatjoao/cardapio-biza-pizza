@@ -7,13 +7,16 @@ import {
   esfihasSalgadasPrecoBase,
   localizePrice,
 } from '../data/menu'
+import { useCart } from '../context/CartContext'
 import { translations, type Lang } from '../utils/translations'
+import { AddButton } from './AddButton'
 import { MenuItemRow } from './MenuItemRow'
 import { GroupTitle, Notice, SectionCard } from './SectionCard'
 import { Tabs } from './Tabs'
 
 export function EsfihasSection({ lang }: { lang: Lang }) {
   const t = translations[lang]
+  const { requestAdd } = useCart()
   const [sub, setSub] = useState('combos')
 
   const SUBTABS = [
@@ -37,9 +40,21 @@ export function EsfihasSection({ lang }: { lang: Lang }) {
                   <p className="text-sm font-bold text-orange-400">{lang === 'en' ? combo.nomeEn : combo.nome}</p>
                   <p className="text-[11px] text-white/60">{lang === 'en' ? combo.subtituloEn : combo.subtitulo}</p>
                 </div>
-                <span className="whitespace-nowrap rounded-full bg-orange-500/90 px-2.5 py-1 text-xs font-bold text-white">
-                  {localizePrice(combo.preco, lang)}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="whitespace-nowrap rounded-full bg-orange-500/90 px-2.5 py-1 text-xs font-bold text-white">
+                    {localizePrice(combo.preco, lang)}
+                  </span>
+                  <AddButton
+                    label={t.cart.add}
+                    onClick={() =>
+                      requestAdd({
+                        name: lang === 'en' ? combo.nomeEn : combo.nome,
+                        note: lang === 'en' ? combo.subtituloEn : combo.subtitulo,
+                        priceLabel: localizePrice(combo.preco, lang),
+                      })
+                    }
+                  />
+                </div>
               </div>
               <ul className="space-y-1 text-xs text-white/80">
                 {(lang === 'en' ? combo.composicaoEn : combo.composicao).map((c) => (
@@ -56,7 +71,7 @@ export function EsfihasSection({ lang }: { lang: Lang }) {
           <GroupTitle price={`${localizePrice(esfihasSalgadasPrecoBase, lang)} (01–11)`}>{t.subtabs.salgados}</GroupTitle>
           <div>
             {esfihasSalgadas.map((item) => (
-              <MenuItemRow key={item.numero} item={item} lang={lang} />
+              <MenuItemRow key={item.numero} item={item} lang={lang} priceLabel={localizePrice(esfihasSalgadasPrecoBase, lang)} />
             ))}
           </div>
         </SectionCard>
@@ -67,7 +82,7 @@ export function EsfihasSection({ lang }: { lang: Lang }) {
           <GroupTitle price={localizePrice(esfihasDocesPreco, lang)}>{t.subtabs.doces}</GroupTitle>
           <div>
             {esfihasDoces.map((item) => (
-              <MenuItemRow key={item.numero} item={item} lang={lang} />
+              <MenuItemRow key={item.numero} item={item} lang={lang} priceLabel={localizePrice(esfihasDocesPreco, lang)} />
             ))}
           </div>
         </SectionCard>

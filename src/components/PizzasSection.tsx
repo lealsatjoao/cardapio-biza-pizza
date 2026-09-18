@@ -26,19 +26,34 @@ export function PizzasSection({ lang }: { lang: Lang }) {
     { key: 'gigante', label: t.sizes.gigante, preco: pizzaSizePrices.gigante },
   ]
 
+  const [size, setSize] = useState<keyof typeof pizzaSizePrices>('grande')
+  const selectedSize = sizes.find((s) => s.key === size)!
+  const priceLabel = localizePrice(selectedSize.preco, lang)
+
   return (
     <div className="flex flex-col gap-4">
       <SectionCard>
         <GroupTitle>{t.sizes.title}</GroupTitle>
         <div className="flex flex-col gap-2">
-          {sizes.map((s) => (
-            <div key={s.key} className="flex items-center justify-between gap-3 rounded-xl bg-white/5 px-3 py-2">
-              <p className="text-sm font-bold text-white">{s.label}</p>
-              <span className="whitespace-nowrap rounded-full bg-orange-500/90 px-2.5 py-1 text-xs font-bold text-white">
-                {localizePrice(s.preco, lang)}
-              </span>
-            </div>
-          ))}
+          {sizes.map((s) => {
+            const isSelected = s.key === size
+            return (
+              <button
+                key={s.key}
+                type="button"
+                onClick={() => setSize(s.key as keyof typeof pizzaSizePrices)}
+                className={[
+                  'flex items-center justify-between gap-3 rounded-xl px-3 py-2 text-left transition-all',
+                  isSelected ? 'bg-orange-500/20 ring-2 ring-orange-400' : 'bg-white/5 hover:bg-white/10',
+                ].join(' ')}
+              >
+                <p className="text-sm font-bold text-white">{s.label}</p>
+                <span className="whitespace-nowrap rounded-full bg-orange-500/90 px-2.5 py-1 text-xs font-bold text-white">
+                  {localizePrice(s.preco, lang)}
+                </span>
+              </button>
+            )
+          })}
         </div>
       </SectionCard>
 
@@ -54,7 +69,7 @@ export function PizzasSection({ lang }: { lang: Lang }) {
             </GroupTitle>
             <div>
               {pizzasSalgadasTradicionais.map((item) => (
-                <MenuItemRow key={item.numero} item={item} lang={lang} />
+                <MenuItemRow key={item.numero} item={item} lang={lang} priceLabel={priceLabel} note={selectedSize.label} />
               ))}
             </div>
           </SectionCard>
@@ -65,7 +80,7 @@ export function PizzasSection({ lang }: { lang: Lang }) {
             </GroupTitle>
             <div>
               {pizzasSalgadasEspeciais.map((item) => (
-                <MenuItemRow key={item.numero} item={item} lang={lang} />
+                <MenuItemRow key={item.numero} item={item} lang={lang} priceLabel={priceLabel} note={selectedSize.label} />
               ))}
             </div>
           </SectionCard>
@@ -81,7 +96,7 @@ export function PizzasSection({ lang }: { lang: Lang }) {
           </GroupTitle>
           <div>
             {pizzasDoces.map((item) => (
-              <MenuItemRow key={item.numero} item={item} lang={lang} />
+              <MenuItemRow key={item.numero} item={item} lang={lang} priceLabel={priceLabel} note={selectedSize.label} />
             ))}
           </div>
         </SectionCard>

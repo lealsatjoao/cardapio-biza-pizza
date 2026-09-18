@@ -1,19 +1,27 @@
 import { useState } from 'react'
 import { localizePrice, massas, porcoes, type PorcaoItem } from '../data/menu'
+import { useCart } from '../context/CartContext'
 import { translations, type Lang } from '../utils/translations'
+import { AddButton } from './AddButton'
 import { SectionCard } from './SectionCard'
 import { Tabs } from './Tabs'
 
 function PorcaoCard({ item, lang }: { item: PorcaoItem; lang: Lang }) {
+  const { requestAdd } = useCart()
+  const t = translations[lang].cart
   const nome = lang === 'en' && item.nomeEn ? item.nomeEn : item.nome
   const descricao = lang === 'en' ? item.descricaoEn ?? item.descricao : item.descricao
+  const precoLabel = localizePrice(item.preco, lang)
   return (
     <SectionCard>
       <div className="flex items-start justify-between gap-3">
         <p className="text-sm font-bold text-white">{nome}</p>
-        <span className="whitespace-nowrap rounded-full bg-orange-500/90 px-2.5 py-1 text-xs font-bold text-white">
-          {localizePrice(item.preco, lang)}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="whitespace-nowrap rounded-full bg-orange-500/90 px-2.5 py-1 text-xs font-bold text-white">
+            {precoLabel}
+          </span>
+          <AddButton label={t.add} onClick={() => requestAdd({ name: nome, priceLabel: precoLabel })} />
+        </div>
       </div>
       {descricao && <p className="mt-2 text-xs leading-relaxed text-white/70">{descricao}</p>}
     </SectionCard>

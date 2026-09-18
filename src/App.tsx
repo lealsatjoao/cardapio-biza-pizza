@@ -1,6 +1,10 @@
 import { useState } from 'react'
+import { AddToCartModal } from './components/AddToCartModal'
 import { BebidasSection } from './components/BebidasSection'
+import { CartDrawer } from './components/CartDrawer'
+import { CartToast } from './components/CartToast'
 import { EsfihasSection } from './components/EsfihasSection'
+import { FloatingCartButton } from './components/FloatingCartButton'
 import { Header } from './components/Header'
 import { PasteisSection } from './components/PasteisSection'
 import { PizzasSection } from './components/PizzasSection'
@@ -13,6 +17,7 @@ const ICON_BASE = `${import.meta.env.BASE_URL}icons/`
 function App() {
   const [tab, setTab] = useState('pasteis')
   const [lang, setLang] = useState<Lang>('pt')
+  const [cartOpen, setCartOpen] = useState(false)
   const t = translations[lang]
 
   const MAIN_TABS = [
@@ -48,6 +53,11 @@ function App() {
           </main>
         </div>
       </div>
+
+      <FloatingCartButton lang={lang} onClick={() => setCartOpen(true)} />
+      <CartDrawer lang={lang} open={cartOpen} onClose={() => setCartOpen(false)} />
+      <AddToCartModal lang={lang} />
+      <CartToast lang={lang} />
     </>
   )
 }
