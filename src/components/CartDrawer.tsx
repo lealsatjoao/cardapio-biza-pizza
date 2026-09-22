@@ -170,19 +170,6 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
         {items.length > 0 && (
           <div className="border-t border-white/10 px-4 py-3">
             <div className="mb-3">
-              <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-white/50">
-                {t.customerName}
-              </label>
-              <input
-                type="text"
-                value={customerName}
-                onChange={(e) => setCustomerName(e.target.value)}
-                placeholder={t.customerNamePlaceholder}
-                className="w-full rounded-lg bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-orange-400"
-              />
-            </div>
-
-            <div className="mb-3">
               <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-white/50">{td.title}</p>
               <div className="flex gap-2">
                 <button
@@ -204,70 +191,6 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
                   {td.delivery}
                 </button>
               </div>
-
-              {mode === 'delivery' && (
-                <div className="mt-2.5 flex flex-col gap-2">
-                  <div className="relative">
-                    <label className="mb-1 block text-[11px] font-semibold text-white/50">{td.addressLabel}</label>
-                    <input
-                      type="text"
-                      value={address}
-                      onChange={(e) => {
-                        setAddress(e.target.value)
-                        setQuote(null)
-                        setDeliveryError(null)
-                        if (selectedSuggestion && e.target.value.trim() !== selectedSuggestion.label) {
-                          setSelectedSuggestion(null)
-                        }
-                      }}
-                      placeholder={td.addressPlaceholder}
-                      className="w-full rounded-lg bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-orange-400"
-                    />
-
-                    {suggestions.length > 0 && (
-                      <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-56 overflow-y-auto rounded-lg bg-neutral-900 shadow-xl ring-1 ring-white/15">
-                        {suggestions.map((s) => (
-                          <button
-                            key={s.label}
-                            type="button"
-                            onClick={() => pickSuggestion(s)}
-                            className="block w-full border-b border-white/5 px-3 py-2 text-left text-xs text-white last:border-0 hover:bg-white/10"
-                          >
-                            {s.label}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {searching && <p className="text-[11px] text-white/50">{td.searching}</p>}
-                  {calculating && <p className="text-[11px] text-white/50">{td.calculating}</p>}
-
-                  {!searching &&
-                    !calculating &&
-                    address.trim().length >= 4 &&
-                    suggestions.length === 0 &&
-                    (!selectedSuggestion || addressStale) && <p className="text-[11px] text-white/50">{td.notFound}</p>}
-
-                  {quote && !addressStale && (
-                    <div className="rounded-lg bg-white/5 p-2.5 text-xs">
-                      <div className="flex items-center justify-between">
-                        <span className="text-white/60">{td.distanceLabel}</span>
-                        <span className="font-semibold text-white">{quote.distanceMi.toFixed(1)} mi</span>
-                      </div>
-                      <div className="mt-1 flex items-center justify-between">
-                        <span className="text-white/60">{td.feeLabel}</span>
-                        <span className="font-semibold text-orange-300">{formatCurrency(quote.fee)}</span>
-                      </div>
-                      {quote.isNewJersey && <p className="mt-1.5 text-[11px] text-white/50">{td.njToll}</p>}
-                    </div>
-                  )}
-
-                  {deliveryError && (
-                    <p className="text-[11px] text-red-400">{deliveryError === 'out_of_range' ? td.outOfRange : td.error}</p>
-                  )}
-                </div>
-              )}
             </div>
 
             <div className="mb-3">
@@ -300,6 +223,85 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
                 </div>
               )}
             </div>
+
+            <div className="mb-3">
+              <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-white/50">
+                {t.customerName}
+              </label>
+              <input
+                type="text"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                placeholder={t.customerNamePlaceholder}
+                className="w-full rounded-lg bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-orange-400"
+              />
+            </div>
+
+            {mode === 'delivery' && (
+              <div className="mb-3 flex flex-col gap-2">
+                <div className="relative">
+                  <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-white/50">
+                    {td.addressLabel}
+                  </label>
+                  <input
+                    type="text"
+                    value={address}
+                    onChange={(e) => {
+                      setAddress(e.target.value)
+                      setQuote(null)
+                      setDeliveryError(null)
+                      if (selectedSuggestion && e.target.value.trim() !== selectedSuggestion.label) {
+                        setSelectedSuggestion(null)
+                      }
+                    }}
+                    placeholder={td.addressPlaceholder}
+                    className="w-full rounded-lg bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-orange-400"
+                  />
+
+                  {suggestions.length > 0 && (
+                    <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-56 overflow-y-auto rounded-lg bg-neutral-900 shadow-xl ring-1 ring-white/15">
+                      {suggestions.map((s) => (
+                        <button
+                          key={s.label}
+                          type="button"
+                          onClick={() => pickSuggestion(s)}
+                          className="block w-full border-b border-white/5 px-3 py-2 text-left text-xs text-white last:border-0 hover:bg-white/10"
+                        >
+                          {s.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {searching && <p className="text-[11px] text-white/50">{td.searching}</p>}
+                {calculating && <p className="text-[11px] text-white/50">{td.calculating}</p>}
+
+                {!searching &&
+                  !calculating &&
+                  address.trim().length >= 4 &&
+                  suggestions.length === 0 &&
+                  (!selectedSuggestion || addressStale) && <p className="text-[11px] text-white/50">{td.notFound}</p>}
+
+                {quote && !addressStale && (
+                  <div className="rounded-lg bg-white/5 p-2.5 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="text-white/60">{td.distanceLabel}</span>
+                      <span className="font-semibold text-white">{quote.distanceMi.toFixed(1)} mi</span>
+                    </div>
+                    <div className="mt-1 flex items-center justify-between">
+                      <span className="text-white/60">{td.feeLabel}</span>
+                      <span className="font-semibold text-orange-300">{formatCurrency(quote.fee)}</span>
+                    </div>
+                    {quote.isNewJersey && <p className="mt-1.5 text-[11px] text-white/50">{td.njToll}</p>}
+                  </div>
+                )}
+
+                {deliveryError && (
+                  <p className="text-[11px] text-red-400">{deliveryError === 'out_of_range' ? td.outOfRange : td.error}</p>
+                )}
+              </div>
+            )}
 
             <div className="mb-1 flex items-center justify-between">
               <span className="text-xs text-white/60">{t.subtotal}</span>
