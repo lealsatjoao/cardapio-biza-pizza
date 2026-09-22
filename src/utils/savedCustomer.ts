@@ -1,9 +1,8 @@
 import type { AddressSuggestion, DeliveryQuote } from './delivery'
 
-// Guarda os dados do cliente (nome, telefone, endereço) só no navegador dele — preenche
-// sozinho da próxima vez que ele pedir pelo mesmo aparelho. Não sai do celular da pessoa,
-// então não tem risco de outro cliente ver esse dado (diferente de um banco compartilhado
-// buscado por telefone, que o João decidiu não usar por causa da privacidade).
+// Guarda os dados do cliente (nome, telefone, endereço) no navegador dele — preenche sozinho
+// e na hora, sem esperar rede, da próxima vez que ele pedir pelo mesmo aparelho. Ver também
+// customersService.ts, que guarda a mesma info no Firebase pra funcionar em qualquer aparelho.
 const STORAGE_KEY = 'biza-customer-info'
 
 export interface SavedCustomerInfo {

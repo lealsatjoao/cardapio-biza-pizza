@@ -6,7 +6,8 @@ import { calculateTax, formatCurrency, parsePriceLabel } from '../utils/price'
 import { buildReceipt, type OrderDelivery, type PaymentMethod } from '../utils/receipt'
 import { nextControleNumber } from '../utils/orderCounter'
 import { sortForReceipt } from '../utils/cartOrder'
-import { loadSavedCustomer, saveCustomer } from '../utils/savedCustomer'
+import { loadSavedCustomer, saveCustomer, type SavedCustomerInfo } from '../utils/savedCustomer'
+import { lookupCustomerRecord, saveCustomerRecord } from '../utils/customersService'
 import { submitOrder } from '../utils/ordersService'
 import {
   calculateDeliveryFee,
@@ -54,26 +55,47 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
   const [deliveryError, setDeliveryError] = useState<DeliveryErrorStatus | null>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Quando o telefone digitado bate com o telefone salvo (mesmo cliente de antes), preenche
-  // nome, ZIP, apto e — se for o mesmo endereço de entrega — o endereço, o mapa e a taxa já
-  // calculada, sem chamar a API de novo.
+  // Preenche nome, ZIP, apto e — se for o mesmo endereço de entrega — o endereço, mapa e taxa
+  // já calculada (sem chamar a API de novo), só nos campos que ainda estiverem vazios.
+  const applyCustomerInfo = (info: SavedCustomerInfo) => {
+    if (!customerName.trim() && info.name) setCustomerName(info.name)
+    if (!zip.trim() && info.zip) setZip(info.zip)
+    if (!aptUnit.trim() && info.aptUnit) setAptUnit(info.aptUnit)
+
+    if (!address.trim()) {
+      if (info.lastSuggestion && info.lastQuote) {
+        setAddress(info.lastSuggestion.label)
+        setSelectedSuggestion(info.lastSuggestion)
+        setQuote(info.lastQuote)
+      } else if (info.address) {
+        setAddress(info.address)
+      }
+    }
+  }
+
+  // Quando o telefone digitado bate com o telefone salvo NESSE aparelho, preenche na hora
+  // (sem esperar rede).
   useEffect(() => {
     const typedDigits = customerPhone.replace(/\D/g, '')
     const savedDigits = (savedCustomer.phone ?? '').replace(/\D/g, '')
     if (!typedDigits || !savedDigits || typedDigits !== savedDigits) return
+    applyCustomerInfo(savedCustomer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customerPhone])
 
-    if (!customerName.trim() && savedCustomer.name) setCustomerName(savedCustomer.name)
-    if (!zip.trim() && savedCustomer.zip) setZip(savedCustomer.zip)
-    if (!aptUnit.trim() && savedCustomer.aptUnit) setAptUnit(savedCustomer.aptUnit)
-
-    if (!address.trim()) {
-      if (savedCustomer.lastSuggestion && savedCustomer.lastQuote) {
-        setAddress(savedCustomer.lastSuggestion.label)
-        setSelectedSuggestion(savedCustomer.lastSuggestion)
-        setQuote(savedCustomer.lastQuote)
-      } else if (savedCustomer.address) {
-        setAddress(savedCustomer.address)
-      }
+  // Também busca no Firebase por esse telefone — funciona mesmo em outro aparelho/navegador
+  // (decisão do João, 22/09/2026: aceitou o risco de privacidade pra ganhar essa comodidade).
+  useEffect(() => {
+    const digits = customerPhone.replace(/\D/g, '')
+    if (digits.length < 10) return
+    let cancelled = false
+    const timer = setTimeout(async () => {
+      const record = await lookupCustomerRecord(digits)
+      if (record && !cancelled) applyCustomerInfo(record)
+    }, 400)
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customerPhone])
@@ -197,6 +219,7 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
     }
     saveCustomer(infoToSave)
     setSavedCustomer(infoToSave)
+    saveCustomerRecord(customerPhone, infoToSave)
     setConfirmedOrder({ controle, name: customerName.trim() })
     clear()
     setSending(false)
