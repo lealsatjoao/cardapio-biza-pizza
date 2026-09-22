@@ -409,9 +409,9 @@ export const refrigerantes: RefrigeranteTamanho[] = [
     ],
   },
   {
-    key: '600ml',
+    key: '500ml',
     preco: '$4,00 +Tax',
-    sabores: [{ nome: 'Pepsi' }, { nome: 'Coca-Cola' }, { nome: 'Fanta' }, { nome: 'Sprite' }],
+    sabores: [{ nome: 'Coca-Cola' }, { nome: 'Coca-Cola Zero' }, { nome: 'Fanta' }, { nome: 'Sprite' }],
   },
   {
     key: 'lata',

@@ -69,7 +69,7 @@ export function BebidasSection({ lang }: { lang: Lang }) {
   ]
 
   const soda2L = refrigerantes.find((r) => r.key === '2l')!
-  const soda600 = refrigerantes.find((r) => r.key === '600ml')!
+  const soda500 = refrigerantes.find((r) => r.key === '500ml')!
   const sodaLata = refrigerantes.find((r) => r.key === 'lata')!
 
   const addSoda = (flavor: string, sizeLabel: string, priceLabel: string) => {
@@ -119,16 +119,16 @@ export function BebidasSection({ lang }: { lang: Lang }) {
 
           <SectionCard>
             <div className="mb-3 flex items-center justify-between gap-3 border-b border-white/15 pb-2">
-              <h3 className="text-sm font-bold uppercase tracking-wide text-orange-400">{t.bebidas.soda600}</h3>
+              <h3 className="text-sm font-bold uppercase tracking-wide text-orange-400">{t.bebidas.soda500}</h3>
               <span className="whitespace-nowrap rounded-full bg-orange-500/90 px-2.5 py-1 text-xs font-bold text-white">
-                {localizePrice(soda600.preco, lang)}
+                {localizePrice(soda500.preco, lang)}
               </span>
             </div>
             <FlavorList
-              flavors={soda600.sabores}
-              basePrice={soda600.preco}
+              flavors={soda500.sabores}
+              basePrice={soda500.preco}
               lang={lang}
-              onAdd={(f, priceLabel) => addSoda(f, t.bebidas.soda600, priceLabel)}
+              onAdd={(f, priceLabel) => addSoda(f, t.bebidas.soda500, priceLabel)}
             />
           </SectionCard>
 

@@ -60,7 +60,7 @@ export const translations = {
     },
     bebidas: {
       soda2L: 'Refrigerante 2 Litros',
-      soda600: 'Refrigerante 600 ml',
+      soda500: 'Refrigerante 500 ml',
       sodaCan: 'Refrigerante Lata (350ml)',
       zeroSugar: 'Zero Açúcar',
       juiceNatural: 'Suco de Polpa Natural',
@@ -191,7 +191,7 @@ export const translations = {
     },
     bebidas: {
       soda2L: '2-Liter Soda',
-      soda600: '600ml Soda',
+      soda500: '500ml Soda',
       sodaCan: 'Can Soda (350ml)',
       zeroSugar: 'Zero Sugar',
       juiceNatural: 'Natural Fruit Pulp Juice',
