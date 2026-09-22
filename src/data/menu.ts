@@ -508,6 +508,17 @@ export const esfihasDoces: MenuItem[] = [
 
 export const esfihasDocesPreco = '$4,00 +Tax'
 
+// Reconhece se um nome de item do carrinho é uma esfiha individual (salgada ou doce), pelo
+// nome (pt ou en) — usado pra checar a venda mínima de 5 sem depender de metadado salvo no
+// carrinho (carrinhos antigos guardados no navegador podem não ter esse campo).
+const esfihaFlavorNames = new Set(
+  [...esfihasSalgadas, ...esfihasDoces].flatMap((item) => [item.nome, item.nomeEn].filter(Boolean)),
+)
+
+export function isEsfihaFlavorName(name: string): boolean {
+  return esfihaFlavorNames.has(name)
+}
+
 // ---------- PORÇÕES / MASSAS ----------
 
 export const porcoes: PorcaoItem[] = [

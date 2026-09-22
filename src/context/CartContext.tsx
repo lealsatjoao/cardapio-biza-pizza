@@ -80,7 +80,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const key = lineKey(input)
       const existing = prev.find((it) => lineKey(it) === key)
       if (existing) {
-        return prev.map((it) => (it.id === existing.id ? { ...it, qty: it.qty + safeQty } : it))
+        // Atualiza metadados (category, receiptLabel, extraAddonsTotal) com o valor mais
+        // recente — corrige linhas antigas do carrinho salvas antes de campos novos existirem
+        // (ex: carrinho salvo no navegador antes da regra de venda mínima de esfiha).
+        return prev.map((it) =>
+          it.id === existing.id
+            ? {
+                ...it,
+                qty: it.qty + safeQty,
+                category: input.category,
+                receiptLabel: input.receiptLabel,
+                extraAddonsTotal: input.extraAddonsTotal,
+              }
+            : it,
+        )
       }
       const id = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`
       return [...prev, { ...input, id, qty: safeQty }]

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useCart } from '../context/CartContext'
+import { isEsfihaFlavorName } from '../data/menu'
 import { translations, type Lang } from '../utils/translations'
 import { calculateTax, formatCurrency, parsePriceLabel } from '../utils/price'
 import { buildOrderMessage, buildWhatsAppUrl, type OrderDelivery, type PaymentMethod } from '../utils/whatsapp'
@@ -78,7 +79,9 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
   const deliveryFee = mode === 'delivery' && quote && !addressStale ? quote.fee : 0
   const taxAmount = calculateTax(totalKnown + deliveryFee)
   const grandTotal = totalKnown + deliveryFee + taxAmount
-  const esfihaQty = items.filter((it) => it.category === 'esfiha').reduce((sum, it) => sum + it.qty, 0)
+  const esfihaQty = items
+    .filter((it) => it.category === 'esfiha' || isEsfihaFlavorName(it.name))
+    .reduce((sum, it) => sum + it.qty, 0)
   const esfihaBelowMin = esfihaQty > 0 && esfihaQty < 5
   const canSend =
     customerName.trim().length > 0 &&
