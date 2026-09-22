@@ -26,16 +26,19 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
   const [confirmClear, setConfirmClear] = useState(false)
 
   const [savedCustomer] = useState(loadSavedCustomer)
-  const [customerName, setCustomerName] = useState(savedCustomer.name ?? '')
+  // Telefone é o único campo pré-preenchido de cara — os outros só vêm quando o telefone
+  // digitado bate com o telefone salvo (evita preencher com dado de outra pessoa, caso o
+  // aparelho seja compartilhado).
+  const [customerName, setCustomerName] = useState('')
   const [customerPhone, setCustomerPhone] = useState(savedCustomer.phone ?? '')
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null)
   const [changeFor, setChangeFor] = useState('')
   const [sending, setSending] = useState(false)
 
   const [mode, setMode] = useState<'pickup' | 'delivery'>('pickup')
-  const [address, setAddress] = useState(savedCustomer.address ?? '')
-  const [zip, setZip] = useState(savedCustomer.zip ?? '')
-  const [aptUnit, setAptUnit] = useState(savedCustomer.aptUnit ?? '')
+  const [address, setAddress] = useState('')
+  const [zip, setZip] = useState('')
+  const [aptUnit, setAptUnit] = useState('')
   const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([])
   const [searching, setSearching] = useState(false)
   const [searchUnavailable, setSearchUnavailable] = useState(false)
@@ -44,6 +47,30 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
   const [quote, setQuote] = useState<DeliveryQuote | null>(null)
   const [deliveryError, setDeliveryError] = useState<DeliveryErrorStatus | null>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Quando o telefone digitado bate com o telefone salvo (mesmo cliente de antes), preenche
+  // nome, ZIP, apto e — se for o mesmo endereço de entrega — o endereço, o mapa e a taxa já
+  // calculada, sem chamar a API de novo.
+  useEffect(() => {
+    const typedDigits = customerPhone.replace(/\D/g, '')
+    const savedDigits = (savedCustomer.phone ?? '').replace(/\D/g, '')
+    if (!typedDigits || !savedDigits || typedDigits !== savedDigits) return
+
+    if (!customerName.trim() && savedCustomer.name) setCustomerName(savedCustomer.name)
+    if (!zip.trim() && savedCustomer.zip) setZip(savedCustomer.zip)
+    if (!aptUnit.trim() && savedCustomer.aptUnit) setAptUnit(savedCustomer.aptUnit)
+
+    if (!address.trim()) {
+      if (savedCustomer.lastSuggestion && savedCustomer.lastQuote) {
+        setAddress(savedCustomer.lastSuggestion.label)
+        setSelectedSuggestion(savedCustomer.lastSuggestion)
+        setQuote(savedCustomer.lastQuote)
+      } else if (savedCustomer.address) {
+        setAddress(savedCustomer.address)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customerPhone])
 
   const addressStale = selectedSuggestion !== null && address.trim() !== selectedSuggestion.label
 
@@ -144,6 +171,8 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
       zip: zip.trim() || undefined,
       address: mode === 'delivery' ? address.trim() || undefined : undefined,
       aptUnit: aptUnit.trim() || undefined,
+      lastSuggestion: mode === 'delivery' && !addressStale ? (selectedSuggestion ?? undefined) : undefined,
+      lastQuote: mode === 'delivery' && !addressStale ? (quote ?? undefined) : undefined,
     })
     setSending(false)
   }
@@ -301,19 +330,6 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
 
             <div className="mb-3">
               <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-white/50">
-                {t.customerName}
-              </label>
-              <input
-                type="text"
-                value={customerName}
-                onChange={(e) => setCustomerName(e.target.value)}
-                placeholder={t.customerNamePlaceholder}
-                className="w-full rounded-lg bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-orange-400"
-              />
-            </div>
-
-            <div className="mb-3">
-              <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-white/50">
                 {t.customerPhone}
               </label>
               <input
@@ -321,6 +337,19 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
                 value={customerPhone}
                 onChange={(e) => setCustomerPhone(e.target.value)}
                 placeholder={t.customerPhonePlaceholder}
+                className="w-full rounded-lg bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-orange-400"
+              />
+            </div>
+
+            <div className="mb-3">
+              <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-white/50">
+                {t.customerName}
+              </label>
+              <input
+                type="text"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                placeholder={t.customerNamePlaceholder}
                 className="w-full rounded-lg bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-orange-400"
               />
             </div>

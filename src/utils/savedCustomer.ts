@@ -1,3 +1,5 @@
+import type { AddressSuggestion, DeliveryQuote } from './delivery'
+
 // Guarda os dados do cliente (nome, telefone, endereço) só no navegador dele — preenche
 // sozinho da próxima vez que ele pedir pelo mesmo aparelho. Não sai do celular da pessoa,
 // então não tem risco de outro cliente ver esse dado (diferente de um banco compartilhado
@@ -10,6 +12,10 @@ export interface SavedCustomerInfo {
   zip?: string
   address?: string
   aptUnit?: string
+  // Endereço geocodificado + taxa calculada da última entrega — reaproveitados no mesmo
+  // endereço pra não gastar consulta na API de novo (distância não muda pro mesmo lugar).
+  lastSuggestion?: AddressSuggestion
+  lastQuote?: DeliveryQuote
 }
 
 export function loadSavedCustomer(): SavedCustomerInfo {
