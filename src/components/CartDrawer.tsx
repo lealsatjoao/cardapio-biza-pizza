@@ -195,8 +195,8 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
 
             <div className="mb-3">
               <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-white/50">{t.paymentTitle}</p>
-              <div className="grid grid-cols-3 gap-2">
-                {(['cash', 'debit', 'credit'] as PaymentMethod[]).map((method) => (
+              <div className="grid grid-cols-2 gap-2">
+                {(['cash', 'zelle', 'venmo', 'card'] as PaymentMethod[]).map((method) => (
                   <button
                     key={method}
                     type="button"
@@ -205,7 +205,13 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
                       paymentMethod === method ? 'bg-orange-500 text-white' : 'bg-white/5 text-white/60 hover:bg-white/10'
                     }`}
                   >
-                    {method === 'cash' ? t.paymentCash : method === 'debit' ? t.paymentDebit : t.paymentCredit}
+                    {method === 'cash'
+                      ? t.paymentCash
+                      : method === 'zelle'
+                        ? t.paymentZelle
+                        : method === 'venmo'
+                          ? t.paymentVenmo
+                          : t.paymentCard}
                   </button>
                 ))}
               </div>

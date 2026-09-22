@@ -8,7 +8,7 @@ export const WHATSAPP_NUMBER = '5511958776672'
 
 export type OrderDelivery = { mode: 'pickup' } | { mode: 'delivery'; quote: DeliveryQuote }
 
-export type PaymentMethod = 'cash' | 'debit' | 'credit'
+export type PaymentMethod = 'cash' | 'zelle' | 'venmo' | 'card'
 
 export interface OrderPayment {
   method: PaymentMethod
@@ -17,8 +17,9 @@ export interface OrderPayment {
 
 const paymentLabels: Record<PaymentMethod, { pt: string; en: string }> = {
   cash: { pt: 'Dinheiro', en: 'Cash' },
-  debit: { pt: 'Cartão de Débito', en: 'Debit Card' },
-  credit: { pt: 'Cartão de Crédito', en: 'Credit Card' },
+  zelle: { pt: 'Zelle', en: 'Zelle' },
+  venmo: { pt: 'Venmo', en: 'Venmo' },
+  card: { pt: 'Cartão', en: 'Card' },
 }
 
 function pad(n: number): string {
