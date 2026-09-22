@@ -108,6 +108,7 @@ export const translations = {
       changeFor: 'Precisa de troco? Para quanto?',
       changeForPlaceholder: 'Ex: $50,00',
       sending: 'Enviando...',
+      esfihaMinWarning: 'Faltam {n} esfihas — a venda mínima é de 5 esfihas individuais.',
     },
     delivery: {
       title: 'Como você quer receber?',
@@ -239,6 +240,7 @@ export const translations = {
       changeFor: 'Need change? For how much?',
       changeForPlaceholder: 'E.g.: $50.00',
       sending: 'Sending...',
+      esfihaMinWarning: 'You need {n} more esfihas — minimum order is 5 individual esfihas.',
     },
     delivery: {
       title: 'How would you like to receive your order?',

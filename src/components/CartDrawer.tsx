@@ -78,11 +78,14 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
   const deliveryFee = mode === 'delivery' && quote && !addressStale ? quote.fee : 0
   const taxAmount = calculateTax(totalKnown + deliveryFee)
   const grandTotal = totalKnown + deliveryFee + taxAmount
+  const esfihaQty = items.filter((it) => it.category === 'esfiha').reduce((sum, it) => sum + it.qty, 0)
+  const esfihaBelowMin = esfihaQty > 0 && esfihaQty < 5
   const canSend =
     customerName.trim().length > 0 &&
     customerPhone.trim().length > 0 &&
     paymentMethod !== null &&
     !sending &&
+    !esfihaBelowMin &&
     (mode === 'pickup' || (quote !== null && !addressStale))
 
   const pickSuggestion = async (suggestion: AddressSuggestion) => {
@@ -423,6 +426,11 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
               <span className="text-base font-bold text-orange-300">{formatCurrency(grandTotal)}</span>
             </div>
             {hasUnknownPriceItems && <p className="mb-2 text-[11px] text-white/50">{t.taxNotice}</p>}
+            {esfihaBelowMin && (
+              <p className="mb-2 text-[11px] font-semibold text-red-400">
+                {t.esfihaMinWarning.replace('{n}', String(5 - esfihaQty))}
+              </p>
+            )}
             <button
               type="button"
               onClick={handleSend}

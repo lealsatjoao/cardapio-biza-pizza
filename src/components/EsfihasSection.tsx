@@ -63,7 +63,13 @@ export function EsfihasSection({ lang }: { lang: Lang }) {
           <GroupTitle price={`${localizePrice(esfihasSalgadasPrecoBase, lang)} (01–11)`}>{t.subtabs.salgados}</GroupTitle>
           <div>
             {esfihasSalgadas.map((item) => (
-              <MenuItemRow key={item.numero} item={item} lang={lang} priceLabel={localizePrice(esfihasSalgadasPrecoBase, lang)} />
+              <MenuItemRow
+                key={item.numero}
+                item={item}
+                lang={lang}
+                priceLabel={localizePrice(esfihasSalgadasPrecoBase, lang)}
+                cartCategory="esfiha"
+              />
             ))}
           </div>
         </SectionCard>
@@ -74,7 +80,13 @@ export function EsfihasSection({ lang }: { lang: Lang }) {
           <GroupTitle price={localizePrice(esfihasDocesPreco, lang)}>{t.subtabs.doces}</GroupTitle>
           <div>
             {esfihasDoces.map((item) => (
-              <MenuItemRow key={item.numero} item={item} lang={lang} priceLabel={localizePrice(esfihasDocesPreco, lang)} />
+              <MenuItemRow
+                key={item.numero}
+                item={item}
+                lang={lang}
+                priceLabel={localizePrice(esfihasDocesPreco, lang)}
+                cartCategory="esfiha"
+              />
             ))}
           </div>
         </SectionCard>

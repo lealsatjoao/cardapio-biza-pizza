@@ -1,6 +1,7 @@
 import { itemDescription, itemName, localizePrice, type MenuItem } from '../data/menu'
 import { translations, type Lang } from '../utils/translations'
 import { useCart } from '../context/CartContext'
+import type { CartItem } from '../types/cart'
 import { AddButton } from './AddButton'
 
 export function MenuItemRow({
@@ -9,6 +10,7 @@ export function MenuItemRow({
   priceLabel,
   note,
   numberedAs,
+  cartCategory,
 }: {
   item: MenuItem
   lang: Lang
@@ -19,6 +21,8 @@ export function MenuItemRow({
   /** Quando definido (ex: "Pastel"), a notinha do WhatsApp mostra "{numberedAs} {número}" no
    * lugar do sabor — replica como a loja registra esses itens no caixa físico (por número). */
   numberedAs?: string
+  /** Marca o item no carrinho (ex: "esfiha") pra regras como venda mínima no checkout. */
+  cartCategory?: CartItem['category']
 }) {
   const { requestAdd } = useCart()
   const t = translations[lang].cart
@@ -52,6 +56,7 @@ export function MenuItemRow({
             note: resolvedNote,
             priceLabel: resolvedPrice,
             receiptLabel: numberedAs ? `${numberedAs} ${item.numero}` : undefined,
+            category: cartCategory,
           })
         }
       />
