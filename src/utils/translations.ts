@@ -116,7 +116,7 @@ export const translations = {
       delivery: 'Entrega',
       addressLabel: 'Endereço de entrega',
       addressPlaceholder: 'Comece a digitar: número e rua...',
-      zipLabel: 'CEP (digite primeiro — ajuda a achar a rua certa)',
+      zipLabel: 'ZIP code (digite primeiro — ajuda a achar a rua certa)',
       zipPlaceholder: 'Ex: 19111',
       aptLabel: 'Apto/Unidade (opcional)',
       aptPlaceholder: 'Ex: Hunters Glen Apartments, Apto 214',
