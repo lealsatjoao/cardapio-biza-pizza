@@ -1,7 +1,14 @@
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut, type User } from 'firebase/auth'
 import { useEffect, useState } from 'react'
 import { auth } from '../utils/firebase'
-import { archiveOrder, dayKeyFor, fetchArchivedOrdersForDay, watchOrders, type StoredOrder } from '../utils/ordersService'
+import {
+  archiveOrder,
+  dayKeyFor,
+  fetchArchivedOrdersForDay,
+  pruneOldArchivedOrders,
+  watchOrders,
+  type StoredOrder,
+} from '../utils/ordersService'
 
 const ICON_BASE = `${import.meta.env.BASE_URL}icons/`
 
@@ -225,6 +232,7 @@ export function CounterScreen() {
 
   useEffect(() => {
     if (!user || user === 'loading') return
+    pruneOldArchivedOrders()
     return watchOrders(setOrders)
   }, [user])
 
