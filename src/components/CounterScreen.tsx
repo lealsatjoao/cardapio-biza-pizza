@@ -12,7 +12,7 @@ function formatTime(ts: number): string {
 function Background() {
   return (
     <div
-      className="fixed inset-0 z-0 h-full w-full bg-black bg-cover bg-center bg-no-repeat pointer-events-none"
+      className="fixed inset-0 z-0 h-full w-full bg-black bg-contain bg-center bg-no-repeat pointer-events-none"
       style={{ backgroundImage: `url(${import.meta.env.BASE_URL}bg-biza.jpg)` }}
     >
       <div className="absolute inset-0 bg-black/55 backdrop-blur-[0.5px]" />
@@ -218,6 +218,10 @@ export function CounterScreen() {
   const [tab, setTab] = useState<'pedidos' | 'historico'>('pedidos')
   const [orders, setOrders] = useState<StoredOrder[]>([])
   const [printText, setPrintText] = useState<string | null>(null)
+
+  useEffect(() => {
+    document.title = 'Biza Pizzas — Balcão'
+  }, [])
 
   useEffect(() => onAuthStateChanged(auth, setUser), [])
 
