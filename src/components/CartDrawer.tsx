@@ -359,23 +359,34 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
             <div className="flex flex-col gap-3">
               {sortForReceipt(items).map((item) => {
                 const unit = parsePriceLabel(item.priceLabel)
+                const addonsPerUnit = item.extraAddonsTotal ?? 0
+                const baseUnit = unit !== undefined ? unit - addonsPerUnit : undefined
                 return (
                   <div key={item.id} className="rounded-xl bg-white/5 p-3 ring-1 ring-white/10">
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <p className="text-sm font-semibold text-white">{item.name}</p>
                         {item.note && <p className="whitespace-pre-line text-xs text-white/60">{item.note}</p>}
-                        {!!item.extraAddonsTotal && (
-                          <p className="mt-0.5 text-xs font-semibold text-orange-300/80">
-                            {t.addonsValue.replace('{v}', formatCurrency(item.extraAddonsTotal))}
-                          </p>
-                        )}
                         {item.observation && (
                           <p className="mt-0.5 text-xs italic text-amber-300/80">"{item.observation}"</p>
                         )}
-                        <p className="mt-0.5 text-xs text-orange-300">
-                          {unit !== undefined ? formatCurrency(unit) : item.priceLabel ?? t.priceOnRequest}
-                        </p>
+                        {addonsPerUnit > 0 && baseUnit !== undefined ? (
+                          <div className="mt-1.5 text-xs">
+                            <p className="text-white/60">
+                              {t.itemBaseLabel}: {formatCurrency(baseUnit)}
+                            </p>
+                            <p className="text-white/60">
+                              {t.itemAddonsLabel}: {formatCurrency(addonsPerUnit)}
+                            </p>
+                            <p className="font-bold text-orange-300">
+                              {t.itemTotalLabel}: {formatCurrency(unit!)}
+                            </p>
+                          </div>
+                        ) : (
+                          <p className="mt-0.5 text-xs text-orange-300">
+                            {unit !== undefined ? formatCurrency(unit) : item.priceLabel ?? t.priceOnRequest}
+                          </p>
+                        )}
                       </div>
                       <button
                         type="button"
