@@ -1,7 +1,7 @@
 import type { CartItem } from '../types/cart'
 import type { DeliveryQuote } from './delivery'
 import type { Lang } from './translations'
-import { formatCurrency, parsePriceLabel } from './price'
+import { calculateTax, formatCurrency, parsePriceLabel } from './price'
 
 // Número da Biza Pizza (DDI 55 + DDD + número) usado para receber os pedidos via WhatsApp.
 export const WHATSAPP_NUMBER = '5511958776672'
@@ -37,14 +37,12 @@ export function buildOrderMessage(items: CartItem[], lang: Lang, delivery?: Orde
   }
 
   const deliveryFee = delivery?.mode === 'delivery' ? delivery.quote.fee : 0
-  const grandTotal = total + deliveryFee
+  const taxAmount = calculateTax(total + deliveryFee)
+  const grandTotal = total + deliveryFee + taxAmount
+  const unknownSuffix = hasUnknown ? (isPt ? ' (+ itens sem preço fixo)' : ' (+ items without fixed price)') : ''
 
   lines.push('')
-  lines.push(
-    isPt
-      ? `Subtotal: ${formatCurrency(total)}${hasUnknown ? ' (+ itens sem preço fixo)' : ''}`
-      : `Subtotal: ${formatCurrency(total)}${hasUnknown ? ' (+ items without fixed price)' : ''}`,
-  )
+  lines.push(isPt ? `Subtotal: ${formatCurrency(total)}${unknownSuffix}` : `Subtotal: ${formatCurrency(total)}${unknownSuffix}`)
 
   if (delivery?.mode === 'delivery') {
     lines.push(isPt ? `Entrega para: ${delivery.quote.address}` : `Delivering to: ${delivery.quote.address}`)
@@ -54,19 +52,12 @@ export function buildOrderMessage(items: CartItem[], lang: Lang, delivery?: Orde
         : `Distance: ${delivery.quote.distanceMi.toFixed(1)} mi`,
     )
     lines.push(isPt ? `Taxa de entrega: ${formatCurrency(deliveryFee)}` : `Delivery fee: ${formatCurrency(deliveryFee)}`)
-    lines.push(
-      isPt
-        ? `Total: ${formatCurrency(grandTotal)}${hasUnknown ? ' (+ itens sem preço fixo)' : ''} — impostos não incluídos`
-        : `Total: ${formatCurrency(grandTotal)}${hasUnknown ? ' (+ items without fixed price)' : ''} — taxes not included`,
-    )
   } else {
     lines.push(isPt ? 'Retirada no local' : 'Pickup')
-    lines.push(
-      isPt
-        ? `Total: ${formatCurrency(grandTotal)}${hasUnknown ? ' (+ itens sem preço fixo)' : ''} — impostos não incluídos`
-        : `Total: ${formatCurrency(grandTotal)}${hasUnknown ? ' (+ items without fixed price)' : ''} — taxes not included`,
-    )
   }
+
+  lines.push(isPt ? `Taxa (8%): ${formatCurrency(taxAmount)}` : `Tax (8%): ${formatCurrency(taxAmount)}`)
+  lines.push(isPt ? `Total: ${formatCurrency(grandTotal)}${unknownSuffix}` : `Total: ${formatCurrency(grandTotal)}${unknownSuffix}`)
 
   lines.push('')
   lines.push(isPt ? 'Nome: ' : 'Name: ')

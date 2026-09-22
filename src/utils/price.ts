@@ -13,3 +13,10 @@ export function parsePriceLabel(label?: string): number | undefined {
 export function formatCurrency(value: number): string {
   return `$${value.toFixed(2).replace('.', ',')}`
 }
+
+// Sales tax da Filadélfia, PA (6% estadual + 2% municipal).
+export const TAX_RATE = 0.08
+
+export function calculateTax(amount: number): number {
+  return amount * TAX_RATE
+}

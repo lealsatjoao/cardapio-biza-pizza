@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useCart } from '../context/CartContext'
 import { translations, type Lang } from '../utils/translations'
-import { formatCurrency, parsePriceLabel } from '../utils/price'
+import { calculateTax, formatCurrency, parsePriceLabel } from '../utils/price'
 import { buildOrderMessage, buildWhatsAppUrl, type OrderDelivery } from '../utils/whatsapp'
 import { calculateDeliveryFee, type DeliveryQuote } from '../utils/delivery'
 import { ConfirmDialog } from './ConfirmDialog'
@@ -26,7 +26,8 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
 
   const addressStale = quote !== null && address.trim() !== calculatedFor
   const deliveryFee = mode === 'delivery' && quote && !addressStale ? quote.fee : 0
-  const grandTotal = totalKnown + deliveryFee
+  const taxAmount = calculateTax(totalKnown + deliveryFee)
+  const grandTotal = totalKnown + deliveryFee + taxAmount
   const canSend = mode === 'pickup' || (quote !== null && !addressStale)
 
   const handleCalculate = async () => {
@@ -210,18 +211,20 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
               )}
             </div>
 
-            {deliveryFee > 0 && (
-              <div className="mb-1 flex items-center justify-between">
-                <span className="text-xs text-white/60">{t.subtotal}</span>
-                <span className="text-xs text-white/80">{formatCurrency(totalKnown)}</span>
-              </div>
-            )}
+            <div className="mb-1 flex items-center justify-between">
+              <span className="text-xs text-white/60">{t.subtotal}</span>
+              <span className="text-xs text-white/80">{formatCurrency(totalKnown)}</span>
+            </div>
             {deliveryFee > 0 && (
               <div className="mb-1 flex items-center justify-between">
                 <span className="text-xs text-white/60">{td.feeLabel}</span>
                 <span className="text-xs text-white/80">{formatCurrency(deliveryFee)}</span>
               </div>
             )}
+            <div className="mb-1 flex items-center justify-between">
+              <span className="text-xs text-white/60">{t.salesTax}</span>
+              <span className="text-xs text-white/80">{formatCurrency(taxAmount)}</span>
+            </div>
             <div className="mb-1 flex items-center justify-between">
               <span className="text-sm font-semibold text-white/80">{t.total}</span>
               <span className="text-base font-bold text-orange-300">{formatCurrency(grandTotal)}</span>
