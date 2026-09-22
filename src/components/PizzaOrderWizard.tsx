@@ -43,6 +43,12 @@ export function PizzaOrderWizard({
     { key: 'gigante', label: t.sizes.gigante, preco: pizzaSizePrices.gigante },
   ]
 
+  const shortSizeLabels: Record<SizeKey, string> = {
+    broto: t.sizes.shortBroto,
+    grande: t.sizes.shortGrande,
+    gigante: t.sizes.shortGigante,
+  }
+
   const config = size ? pizzaSizeConfig[size] : null
   const maxSabores = config?.maxSabores ?? 1
   const sodaOptions = refrigerantes.find((r) => r.key === 'lata')!.sabores.map((s) => s.nome)
@@ -56,11 +62,11 @@ export function PizzaOrderWizard({
   const totalPriceLabel = `${formatCurrency(basePrice + extraTotal)} +Tax`
 
   const finish = (crust: string, sodaFlavor: string | null) => {
-    const sizeLabel = sizes.find((s) => s.key === size)!.label
-    const flavorNames = selected.map((item) => itemName(item, lang)).join(' + ')
-    const parts = [sizeLabel, `${lang === 'pt' ? 'Borda' : 'Crust'}: ${crust}`]
-    if (sodaFlavor) parts.push(`${lang === 'pt' ? 'Refrigerante' : 'Soda'}: ${sodaFlavor}`)
-    requestAdd({ name: flavorNames, note: parts.join('\n'), priceLabel: totalPriceLabel })
+    const isPt = lang === 'pt'
+    const pizzaName = isPt ? `Pizza ${shortSizeLabels[size!]}` : `${shortSizeLabels[size!]} Pizza`
+    const parts = [...selected.map((item) => itemName(item, lang)), `${isPt ? 'Borda' : 'Crust'}: ${crust}`]
+    if (sodaFlavor) parts.push(`${isPt ? 'Refrigerante' : 'Soda'}: ${sodaFlavor}`)
+    requestAdd({ name: pizzaName, note: parts.join('\n'), priceLabel: totalPriceLabel })
     onClose()
   }
 

@@ -21,6 +21,9 @@ export const translations = {
       broto: 'Broto 6 fatias (até 2 sabores tradicionais)',
       grande: 'Grande 8 fatias (até 2 sabores tradicionais)',
       gigante: 'Gigante 12 fatias (até 3 sabores tradicionais + Refrigerante de brinde)',
+      shortBroto: 'Broto',
+      shortGrande: 'Grande',
+      shortGigante: 'Gigante',
       crustNotice:
         'Todas as pizzas acompanham borda recheada inclusa (Catupiry, Cheddar, Mussarela, Chocolate ou Doce de Leite).',
     },
@@ -126,6 +129,9 @@ export const translations = {
       broto: 'Personal 6 slices (up to 2 traditional flavors)',
       grande: 'Large 8 slices (up to 2 traditional flavors)',
       gigante: 'Giant 12 slices (up to 3 traditional flavors + Free Soda)',
+      shortBroto: 'Personal',
+      shortGrande: 'Large',
+      shortGigante: 'Giant',
       crustNotice: 'All pizzas include free stuffed crust (Catupiry, Cheddar, Mozzarella, Chocolate or Dulce de Leche).',
     },
     pizzaWizard: {
