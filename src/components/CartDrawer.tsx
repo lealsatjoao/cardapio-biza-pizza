@@ -154,7 +154,8 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 py-3">
+        <div className="flex-1 overflow-y-auto">
+        <div className="px-4 py-3">
           {items.length === 0 ? (
             <div className="mt-10 text-center text-white/60">
               <p className="text-sm font-semibold">{t.empty}</p>
@@ -439,6 +440,7 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
             </button>
           </div>
         )}
+        </div>
       </div>
 
       <ConfirmDialog
