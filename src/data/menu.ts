@@ -396,6 +396,7 @@ export const refrigerantes: RefrigeranteTamanho[] = [
     key: '2l',
     preco: '$6,00 +Tax',
     sabores: [
+      { nome: 'Pepsi' },
       { nome: 'Fanta' },
       { nome: 'Sprite' },
       { nome: 'Guaraná Antarctica', preco: '$7,00 +Tax' },
@@ -410,12 +411,13 @@ export const refrigerantes: RefrigeranteTamanho[] = [
   {
     key: '600ml',
     preco: '$4,00 +Tax',
-    sabores: [{ nome: 'Coca-Cola' }, { nome: 'Fanta' }, { nome: 'Sprite' }],
+    sabores: [{ nome: 'Pepsi' }, { nome: 'Coca-Cola' }, { nome: 'Fanta' }, { nome: 'Sprite' }],
   },
   {
     key: 'lata',
     preco: '$3,00 +Tax',
     sabores: [
+      { nome: 'Pepsi' },
       { nome: 'Coca-Cola' },
       { nome: 'Coca-Cola Zero' },
       { nome: 'Fanta' },
