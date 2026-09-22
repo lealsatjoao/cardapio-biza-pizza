@@ -92,6 +92,11 @@ function printReceipt(setPrintText: (t: string | null) => void, text: string) {
   setPrintText(text)
 }
 
+function whatsappUrl(phone: string): string {
+  const digits = phone.replace(/\D/g, '')
+  return `https://wa.me/1${digits}`
+}
+
 function OrderCard({
   order,
   onArchive,
@@ -136,6 +141,14 @@ function OrderCard({
             >
               Imprimir
             </button>
+            <a
+              href={whatsappUrl(order.customerPhone)}
+              target="_blank"
+              rel="noreferrer"
+              className="flex-1 rounded-lg bg-green-600 py-2 text-center text-xs font-bold text-white hover:bg-green-500"
+            >
+              WhatsApp {order.customerPhone}
+            </a>
             {archivable &&
               (confirmingArchive ? (
                 <button
