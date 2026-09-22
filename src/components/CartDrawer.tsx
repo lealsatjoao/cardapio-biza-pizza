@@ -21,8 +21,10 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
 
   const [mode, setMode] = useState<'pickup' | 'delivery'>('pickup')
   const [address, setAddress] = useState('')
+  const [zip, setZip] = useState('')
   const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([])
   const [searching, setSearching] = useState(false)
+  const [searchUnavailable, setSearchUnavailable] = useState(false)
   const [selectedSuggestion, setSelectedSuggestion] = useState<AddressSuggestion | null>(null)
   const [calculating, setCalculating] = useState(false)
   const [quote, setQuote] = useState<DeliveryQuote | null>(null)
@@ -43,15 +45,22 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
     }
     debounceRef.current = setTimeout(async () => {
       setSearching(true)
-      const results = await searchAddressSuggestions(address.trim())
+      const query = zip.trim() ? `${address.trim()}, ${zip.trim()}` : address.trim()
+      const result = await searchAddressSuggestions(query)
       setSearching(false)
-      setSuggestions(results)
+      if (result.status === 'ok') {
+        setSearchUnavailable(false)
+        setSuggestions(result.suggestions)
+      } else {
+        setSearchUnavailable(true)
+        setSuggestions([])
+      }
     }, 350)
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [address])
+  }, [address, zip])
 
   if (!open) return null
 
@@ -280,14 +289,29 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
                   )}
                 </div>
 
+                <div>
+                  <label className="mb-1 block text-[11px] font-semibold text-white/50">{td.zipLabel}</label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={zip}
+                    onChange={(e) => {
+                      setZip(e.target.value)
+                      setQuote(null)
+                      setDeliveryError(null)
+                      if (selectedSuggestion) setSelectedSuggestion(null)
+                    }}
+                    placeholder={td.zipPlaceholder}
+                    className="w-full rounded-lg bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-orange-400"
+                  />
+                </div>
+
                 {searching && <p className="text-[11px] text-white/50">{td.searching}</p>}
                 {calculating && <p className="text-[11px] text-white/50">{td.calculating}</p>}
 
-                {!searching &&
-                  !calculating &&
-                  address.trim().length >= 4 &&
-                  suggestions.length === 0 &&
-                  (!selectedSuggestion || addressStale) && <p className="text-[11px] text-white/50">{td.notFound}</p>}
+                {!searching && !calculating && address.trim().length >= 4 && suggestions.length === 0 && (!selectedSuggestion || addressStale) && (
+                  <p className="text-[11px] text-red-400">{searchUnavailable ? td.searchUnavailable : td.notFound}</p>
+                )}
 
                 {quote && !addressStale && (
                   <div className="rounded-lg bg-white/5 p-2.5 text-xs">

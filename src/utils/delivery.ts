@@ -40,27 +40,37 @@ export interface AddressSuggestion {
   isNewJersey: boolean
 }
 
+export type AddressSearchResult =
+  | { status: 'ok'; suggestions: AddressSuggestion[] }
+  | { status: 'unavailable' }
+
 // Busca sugestões de endereço conforme a pessoa digita (autocompletar, igual ao Google).
-export async function searchAddressSuggestions(text: string): Promise<AddressSuggestion[]> {
-  if (!ORS_API_KEY || text.trim().length < 4) return []
+// focus.point centraliza a busca perto da pizzaria — sem isso, "123 Main St" pode trazer
+// resultados de qualquer estado dos EUA na frente do endereço local que a pessoa quer.
+export async function searchAddressSuggestions(text: string): Promise<AddressSearchResult> {
+  if (!ORS_API_KEY) return { status: 'unavailable' }
+  if (text.trim().length < 4) return { status: 'ok', suggestions: [] }
 
   try {
+    const [lon, lat] = PIZZERIA_COORDS
     const res = await fetch(
-      `https://api.openrouteservice.org/geocode/autocomplete?api_key=${ORS_API_KEY}&text=${encodeURIComponent(text)}&boundary.country=US&size=6`,
+      `https://api.openrouteservice.org/geocode/autocomplete?api_key=${ORS_API_KEY}&text=${encodeURIComponent(text)}&boundary.country=US&size=6&focus.point.lat=${lat}&focus.point.lon=${lon}`,
     )
-    if (!res.ok) return []
+    // 403/429/503 aqui normalmente é cota diária gratuita esgotada, não "endereço não existe".
+    if (!res.ok) return { status: 'unavailable' }
     const data = await res.json()
     const features: any[] = data.features ?? []
 
-    return features
+    const suggestions = features
       .filter((f) => ACCEPTABLE_LAYERS.has(f.properties?.layer))
       .map((f) => ({
         label: f.properties.label as string,
         coords: f.geometry.coordinates as [number, number],
         isNewJersey: f.properties?.region_a === 'NJ',
       }))
+    return { status: 'ok', suggestions }
   } catch {
-    return []
+    return { status: 'unavailable' }
   }
 }
 
