@@ -121,9 +121,10 @@ export async function searchAddressSuggestions(text: string): Promise<AddressSea
         // cidade e estado+CEP, sem repetir "Philadelphia" três vezes nem mostrar país/condado
         // (o display_name completo da API vem bem verboso).
         const cityStateZip = [cityForLabel, [stateAbbr, postcode].filter(Boolean).join(' ')].filter(Boolean).join(', ')
-        const label = [streetPart, neighbourhood && neighbourhood !== cityForLabel ? neighbourhood : undefined, cityStateZip]
-          .filter(Boolean)
-          .join(', ')
+        // Sem bairro aqui de propósito — é só rua + cidade + estado + CEP, igual aparece no
+        // Maps do iPhone. O bairro (neighbourhood) ainda é guardado à parte pra linha própria
+        // da notinha impressa (ver receipt.ts).
+        const label = [streetPart, cityStateZip].filter(Boolean).join(', ')
         return {
           label: label || (f.display_name as string),
           coords: [Number(f.lon), Number(f.lat)] as [number, number],
