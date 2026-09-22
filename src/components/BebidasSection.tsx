@@ -139,12 +139,32 @@ export function BebidasSection({ lang }: { lang: Lang }) {
                 {localizePrice(sodaLata.preco, lang)}
               </span>
             </div>
-            <FlavorList
-              flavors={sodaLata.sabores}
-              basePrice={sodaLata.preco}
-              lang={lang}
-              onAdd={(f, priceLabel) => addSoda(f, t.bebidas.sodaCan, priceLabel)}
-            />
+            <div className="flex flex-col gap-2">
+              <div>
+                <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-white/50">
+                  {t.subtabs.tradicionais}
+                </p>
+                <FlavorList
+                  flavors={sodaLata.sabores}
+                  basePrice={sodaLata.preco}
+                  lang={lang}
+                  onAdd={(f, priceLabel) => addSoda(f, t.bebidas.sodaCan, priceLabel)}
+                />
+              </div>
+              {sodaLata.saboresZero && (
+                <div>
+                  <p className="mb-1.5 mt-1 text-[11px] font-semibold uppercase tracking-wide text-white/50">
+                    {t.bebidas.zeroSugar}
+                  </p>
+                  <FlavorList
+                    flavors={sodaLata.saboresZero}
+                    basePrice={sodaLata.preco}
+                    lang={lang}
+                    onAdd={(f, priceLabel) => addSoda(f, t.bebidas.sodaCan, priceLabel)}
+                  />
+                </div>
+              )}
+            </div>
           </SectionCard>
         </>
       )}

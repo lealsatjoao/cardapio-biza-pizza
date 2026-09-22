@@ -419,13 +419,11 @@ export const refrigerantes: RefrigeranteTamanho[] = [
     sabores: [
       { nome: 'Pepsi' },
       { nome: 'Coca-Cola' },
-      { nome: 'Coca-Cola Zero' },
       { nome: 'Fanta' },
       { nome: 'Sprite' },
-      { nome: 'Pepsi Zero' },
       { nome: 'Guaraná Antarctica' },
-      { nome: 'Guaraná Antarctica Zero' },
     ],
+    saboresZero: [{ nome: 'Coca-Cola Zero' }, { nome: 'Pepsi Zero' }, { nome: 'Guaraná Antarctica Zero' }],
   },
 ]
 
