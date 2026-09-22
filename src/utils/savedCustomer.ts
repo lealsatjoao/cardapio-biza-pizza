@@ -1,4 +1,5 @@
 import type { AddressSuggestion, DeliveryQuote } from './delivery'
+import type { PhoneCountry } from './phone'
 
 // Guarda os dados do cliente (nome, telefone, endereço) no navegador dele — preenche sozinho
 // e na hora, sem esperar rede, da próxima vez que ele pedir pelo mesmo aparelho. Ver também
@@ -8,6 +9,8 @@ const STORAGE_KEY = 'biza-customer-info'
 export interface SavedCustomerInfo {
   name?: string
   phone?: string
+  /** País do telefone (EUA/Brasil) — usado pra montar o número completo (+1/+55) de novo. */
+  phoneCountry?: PhoneCountry
   zip?: string
   address?: string
   aptUnit?: string

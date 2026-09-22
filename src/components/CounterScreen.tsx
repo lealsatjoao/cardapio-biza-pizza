@@ -92,9 +92,11 @@ function printReceipt(setPrintText: (t: string | null) => void, text: string) {
   setPrintText(text)
 }
 
+// Pedidos novos já gravam o telefone com código do país (+1 ou +55) na frente. Pedidos de
+// antes dessa mudança só têm o número local dos EUA (10 dígitos) — nesse caso completa com "1".
 function whatsappUrl(phone: string): string {
   const digits = phone.replace(/\D/g, '')
-  return `https://wa.me/1${digits}`
+  return `https://wa.me/${digits.length === 10 ? '1' : ''}${digits}`
 }
 
 function OrderCard({
@@ -147,7 +149,7 @@ function OrderCard({
               rel="noreferrer"
               className="flex-1 rounded-lg bg-green-600 py-2 text-center text-xs font-bold text-white hover:bg-green-500"
             >
-              WhatsApp {order.customerPhone}
+              WhatsApp +{order.customerPhone}
             </a>
             {archivable &&
               (confirmingArchive ? (

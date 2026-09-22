@@ -9,6 +9,7 @@ import { sortForReceipt } from '../utils/cartOrder'
 import { loadSavedCustomer, saveCustomer, type SavedCustomerInfo } from '../utils/savedCustomer'
 import { lookupCustomerRecord, saveCustomerRecord } from '../utils/customersService'
 import { submitOrder } from '../utils/ordersService'
+import { fullPhoneDigits, formatPhoneDisplay, type PhoneCountry } from '../utils/phone'
 import {
   calculateDeliveryFee,
   searchAddressSuggestions,
@@ -35,6 +36,8 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
   // algo depois que a pessoa digita, nunca sozinho ao abrir o site (pedido do João, 22/09/2026).
   const [customerName, setCustomerName] = useState('')
   const [customerPhone, setCustomerPhone] = useState('')
+  // EUA por padrão (maioria dos clientes) — a pessoa só troca se o telefone for do Brasil.
+  const [phoneCountry, setPhoneCountry] = useState<PhoneCountry>('US')
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null)
   const [changeFor, setChangeFor] = useState('')
   const [sending, setSending] = useState(false)
@@ -141,6 +144,7 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
   const confirmPendingMatch = () => {
     if (!pendingMatch) return
     applyCustomerInfo(pendingMatch)
+    if (pendingMatch.phoneCountry) setPhoneCountry(pendingMatch.phoneCountry)
     setPendingMatch(null)
     setPhoneVerified(true)
     setResolvedDigits(customerPhone.replace(/\D/g, ''))
@@ -234,10 +238,13 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
       mode === 'delivery' && quote && !addressStale
         ? { mode: 'delivery', quote, aptUnit: aptUnit.trim() || undefined }
         : { mode: 'pickup' }
+    // Telefone com código do país (+1/+55) — é o que vai gravado no pedido e usado no botão
+    // de WhatsApp da tela do balcão. Na notinha impressa mostra formatado com "+" na frente.
+    const fullPhone = fullPhoneDigits(phoneCountry, customerPhone)
     const { text, totals } = buildReceipt(
       items,
       customerName.trim(),
-      customerPhone.trim(),
+      formatPhoneDisplay(phoneCountry, customerPhone),
       { method: paymentMethod, changeFor },
       delivery,
       controle,
@@ -247,7 +254,7 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
         controle,
         createdAt: Date.now(),
         customerName: customerName.trim(),
-        customerPhone: customerPhone.trim(),
+        customerPhone: fullPhone,
         mode,
         grandTotal: totals.grandTotal,
         receiptText: text,
@@ -263,6 +270,7 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
     const infoToSave = {
       name: customerName.trim(),
       phone: customerPhone.trim(),
+      phoneCountry,
       zip: zip.trim() || undefined,
       address: mode === 'delivery' ? address.trim() || undefined : undefined,
       aptUnit: aptUnit.trim() || undefined,
@@ -403,6 +411,26 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
               <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-white/50">
                 {t.customerPhone}
               </label>
+              <div className="mb-2 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPhoneCountry('US')}
+                  className={`flex-1 rounded-lg py-2 text-xs font-bold transition-colors ${
+                    phoneCountry === 'US' ? 'bg-orange-500 text-white' : 'bg-white/5 text-white/60 hover:bg-white/10'
+                  }`}
+                >
+                  {t.countryUS}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPhoneCountry('BR')}
+                  className={`flex-1 rounded-lg py-2 text-xs font-bold transition-colors ${
+                    phoneCountry === 'BR' ? 'bg-orange-500 text-white' : 'bg-white/5 text-white/60 hover:bg-white/10'
+                  }`}
+                >
+                  {t.countryBR}
+                </button>
+              </div>
               <input
                 type="tel"
                 value={customerPhone}
