@@ -52,7 +52,6 @@ export function buildOrderMessage(items: CartItem[], lang: Lang, delivery?: Orde
   for (const item of items) {
     const unit = parsePriceLabel(item.priceLabel)
     const parts = [`• ${item.qty}x ${item.name}`]
-    if (item.note) parts.push(`(${item.note})`)
     if (unit !== undefined) {
       total += unit * item.qty
       parts.push(`— ${formatCurrency(unit * item.qty)}`)
@@ -62,6 +61,11 @@ export function buildOrderMessage(items: CartItem[], lang: Lang, delivery?: Orde
       hasUnknown = true
     }
     lines.push(parts.join(' '))
+    if (item.note) {
+      for (const noteLine of item.note.split('\n')) {
+        lines.push(`   ${noteLine}`)
+      }
+    }
     if (item.observation) {
       lines.push(isPt ? `   Obs: ${item.observation}` : `   Note: ${item.observation}`)
     }

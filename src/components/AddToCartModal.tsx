@@ -38,7 +38,7 @@ export function AddToCartModal({ lang }: { lang: Lang }) {
       <div className="relative w-full max-w-sm rounded-t-2xl bg-neutral-950 p-4 shadow-2xl ring-1 ring-white/10 sm:rounded-2xl animate-[slideUp_0.2s_ease-out]">
         <div className="mb-3">
           <p className="text-base font-bold text-white">{promptItem.name}</p>
-          {promptItem.note && <p className="mt-0.5 text-xs text-white/60">{promptItem.note}</p>}
+          {promptItem.note && <p className="mt-0.5 whitespace-pre-line text-xs text-white/60">{promptItem.note}</p>}
           {promptItem.priceLabel && <p className="mt-1 text-sm font-bold text-orange-300">{promptItem.priceLabel}</p>}
         </div>
 

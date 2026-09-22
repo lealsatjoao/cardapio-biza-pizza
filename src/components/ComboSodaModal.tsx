@@ -21,7 +21,7 @@ export function ComboSodaModal({ combo, lang, onClose }: { combo: ComboEsfiha; l
     const next = [...picks, flavor]
     if (next.length >= combo.sodaQty) {
       const sodaLabel = lang === 'pt' ? (next.length > 1 ? 'Refrigerantes' : 'Refrigerante') : next.length > 1 ? 'Sodas' : 'Soda'
-      const note = `${comboSubtitle} · ${sodaLabel}: ${next.join(', ')}`
+      const note = `${comboSubtitle}\n${sodaLabel}: ${next.join(', ')}`
       requestAdd({ name: comboName, note, priceLabel: localizePrice(combo.preco, lang) })
       onClose()
     } else {

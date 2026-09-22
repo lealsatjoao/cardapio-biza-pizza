@@ -60,7 +60,7 @@ export function PizzaOrderWizard({
     const flavorNames = selected.map((item) => itemName(item, lang)).join(' + ')
     const parts = [sizeLabel, `${lang === 'pt' ? 'Borda' : 'Crust'}: ${crust}`]
     if (sodaFlavor) parts.push(`${lang === 'pt' ? 'Refrigerante' : 'Soda'}: ${sodaFlavor}`)
-    requestAdd({ name: flavorNames, note: parts.join(' · '), priceLabel: totalPriceLabel })
+    requestAdd({ name: flavorNames, note: parts.join('\n'), priceLabel: totalPriceLabel })
     onClose()
   }
 
