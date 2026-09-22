@@ -187,7 +187,9 @@ function HistoryTab({ onPrint }: { onPrint: (order: StoredOrder) => void }) {
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
-          className="rounded-lg bg-white/10 px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-orange-400"
+          // O campo de data mostra fundo branco em vários navegadores (Safari inclusive),
+          // não dá pra estilizar isso — por isso a letra fica preta, não branca.
+          className="rounded-lg bg-white px-3 py-1.5 text-sm text-black focus:outline-none focus:ring-1 focus:ring-orange-400"
         />
       </div>
 
