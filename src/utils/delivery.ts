@@ -53,8 +53,10 @@ export type AddressSearchResult =
 // Busca sugestões de endereço conforme a pessoa digita (autocompletar, igual ao Google).
 // viewbox+bounded=1 restringe a busca a uma caixa perto da pizzaria — sem isso, "123 Main St"
 // pode trazer resultados de qualquer estado dos EUA na frente do endereço local que a pessoa quer.
-// Só aceita resultados com número de casa (house_number) — evita cair num ponto central de
-// cidade/bairro, que daria uma distância errada sem avisar o cliente.
+// Aceita resultados com número de casa (house_number) OU, quando não tem (comum em ruas
+// residenciais de NJ com menos detalhe no mapa), um resultado preciso de rua (class=highway
+// com endereço.road) — evita cair num ponto central de cidade/bairro/condado, que daria uma
+// distância errada sem avisar o cliente.
 export async function searchAddressSuggestions(text: string): Promise<AddressSearchResult> {
   if (!LOCATIONIQ_API_KEY) return { status: 'unavailable' }
   if (text.trim().length < 4) return { status: 'ok', suggestions: [] }
@@ -69,7 +71,7 @@ export async function searchAddressSuggestions(text: string): Promise<AddressSea
     if (!Array.isArray(data)) return { status: 'ok', suggestions: [] }
 
     const suggestions = data
-      .filter((f: any) => f.address?.house_number)
+      .filter((f: any) => f.address?.house_number || (f.class === 'highway' && (f.address?.road || f.address?.name)))
       .map((f: any) => ({
         label: f.display_name as string,
         coords: [Number(f.lon), Number(f.lat)] as [number, number],

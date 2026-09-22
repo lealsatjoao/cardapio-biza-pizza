@@ -254,6 +254,23 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
 
             {mode === 'delivery' && (
               <div className="mb-3 flex flex-col gap-2">
+                <div>
+                  <label className="mb-1 block text-[11px] font-semibold text-white/50">{td.zipLabel}</label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={zip}
+                    onChange={(e) => {
+                      setZip(e.target.value)
+                      setQuote(null)
+                      setDeliveryError(null)
+                      if (selectedSuggestion) setSelectedSuggestion(null)
+                    }}
+                    placeholder={td.zipPlaceholder}
+                    className="w-full rounded-lg bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-orange-400"
+                  />
+                </div>
+
                 <div className="relative">
                   <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-white/50">
                     {td.addressLabel}
@@ -287,23 +304,6 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
                       ))}
                     </div>
                   )}
-                </div>
-
-                <div>
-                  <label className="mb-1 block text-[11px] font-semibold text-white/50">{td.zipLabel}</label>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    value={zip}
-                    onChange={(e) => {
-                      setZip(e.target.value)
-                      setQuote(null)
-                      setDeliveryError(null)
-                      if (selectedSuggestion) setSelectedSuggestion(null)
-                    }}
-                    placeholder={td.zipPlaceholder}
-                    className="w-full rounded-lg bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-orange-400"
-                  />
                 </div>
 
                 {searching && <p className="text-[11px] text-white/50">{td.searching}</p>}

@@ -4,16 +4,18 @@ import {
   itemDescription,
   itemName,
   localizePrice,
+  pizzaAdicionais,
   pizzaSizeConfig,
   pizzaSizePrices,
   refrigerantes,
   type MenuItem,
+  type PizzaAdicional,
 } from '../data/menu'
 import { useCart } from '../context/CartContext'
 import { formatCurrency, parsePriceLabel } from '../utils/price'
 import { translations, type Lang } from '../utils/translations'
 
-type Step = 'size' | 'more' | 'flavors' | 'crust' | 'soda'
+type Step = 'size' | 'more' | 'flavors' | 'crust' | 'adicionais' | 'adicionalScope' | 'soda'
 type SizeKey = keyof typeof pizzaSizePrices
 
 export function PizzaOrderWizard({
@@ -36,6 +38,10 @@ export function PizzaOrderWizard({
   const [size, setSize] = useState<SizeKey | null>(null)
   const [selected, setSelected] = useState<MenuItem[]>([firstFlavor])
   const [selectedCrust, setSelectedCrust] = useState<string | null>(null)
+  const [adicionaisSelecionados, setAdicionaisSelecionados] = useState<PizzaAdicional[]>([])
+  const [adicionalScopes, setAdicionalScopes] = useState<Record<string, string>>({})
+  const [scopeQueue, setScopeQueue] = useState<PizzaAdicional[]>([])
+  const [scopeIndex, setScopeIndex] = useState(0)
 
   const sizes: { key: SizeKey; label: string; preco: string }[] = [
     { key: 'broto', label: t.sizes.broto, preco: pizzaSizePrices.broto },
@@ -59,12 +65,24 @@ export function PizzaOrderWizard({
     const perFatia = parsePriceLabel(item.precoOverride)
     return perFatia ? sum + perFatia * extraPerFlavor : sum
   }, 0)
-  const totalPriceLabel = `${formatCurrency(basePrice + extraTotal)} +Tax`
+  const adicionaisTotal = adicionaisSelecionados.reduce((sum, ad) => {
+    if (ad.tipo === 'inteira') return sum + 1
+    const scope = selected.length > 1 ? adicionalScopes[ad.nome] : undefined
+    if (!scope || scope === 'inteira') return sum + (config?.fatias ?? 0)
+    return sum + extraPerFlavor
+  }, 0)
+  const totalPriceLabel = `${formatCurrency(basePrice + extraTotal + adicionaisTotal)} +Tax`
 
   const finish = (crust: string, sodaFlavor: string | null) => {
     const isPt = lang === 'pt'
     const pizzaName = isPt ? `Pizza ${shortSizeLabels[size!]}` : `${shortSizeLabels[size!]} Pizza`
     const parts = [...selected.map((item) => itemName(item, lang)), `${isPt ? 'Borda' : 'Crust'}: ${crust}`]
+    for (const ad of adicionaisSelecionados) {
+      const nome = lang === 'en' ? ad.nomeEn : ad.nome
+      const scope = ad.tipo === 'pedaco' && selected.length > 1 ? adicionalScopes[ad.nome] : undefined
+      const scopeLabel = scope && scope !== 'inteira' ? scope : isPt ? 'pizza inteira' : 'whole pizza'
+      parts.push(`${isPt ? 'Adicional' : 'Extra'}: ${nome} (${scopeLabel})`)
+    }
     if (sodaFlavor) parts.push(`${isPt ? 'Refrigerante' : 'Soda'}: ${sodaFlavor}`)
     requestAdd({ name: pizzaName, note: parts.join('\n'), priceLabel: totalPriceLabel })
     onClose()
@@ -97,11 +115,41 @@ export function PizzaOrderWizard({
   }
 
   const pickCrust = (crustName: string) => {
-    if (size === 'gigante') {
-      setSelectedCrust(crustName)
-      setStep('soda')
+    setSelectedCrust(crustName)
+    setStep('adicionais')
+  }
+
+  const toggleAdicional = (adicional: PizzaAdicional) => {
+    setAdicionaisSelecionados((prev) =>
+      prev.some((a) => a.nome === adicional.nome)
+        ? prev.filter((a) => a.nome !== adicional.nome)
+        : [...prev, adicional],
+    )
+  }
+
+  const afterAdicionais = () => {
+    if (size === 'gigante') setStep('soda')
+    else finish(selectedCrust!, null)
+  }
+
+  const confirmAdicionais = () => {
+    const needsScope = selected.length > 1 ? adicionaisSelecionados.filter((a) => a.tipo === 'pedaco') : []
+    if (needsScope.length > 0) {
+      setScopeQueue(needsScope)
+      setScopeIndex(0)
+      setStep('adicionalScope')
     } else {
-      finish(crustName, null)
+      afterAdicionais()
+    }
+  }
+
+  const pickScope = (scope: string) => {
+    const current = scopeQueue[scopeIndex]
+    setAdicionalScopes((prev) => ({ ...prev, [current.nome]: scope }))
+    if (scopeIndex + 1 < scopeQueue.length) {
+      setScopeIndex(scopeIndex + 1)
+    } else {
+      afterAdicionais()
     }
   }
 
@@ -114,7 +162,14 @@ export function PizzaOrderWizard({
           ? tw.flavorsTitle
           : step === 'crust'
             ? tw.crustTitle
-            : tw.sodaTitle
+            : step === 'adicionais'
+              ? tw.adicionaisTitle
+              : step === 'adicionalScope'
+                ? tw.scopeTitle.replace(
+                    '{item}',
+                    lang === 'en' ? scopeQueue[scopeIndex]?.nomeEn : scopeQueue[scopeIndex]?.nome,
+                  )
+                : tw.sodaTitle
 
   return (
     <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center">
@@ -233,6 +288,80 @@ export function PizzaOrderWizard({
             </div>
           )}
 
+          {step === 'adicionais' && (
+            <div>
+              <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-white/50">{tw.adicionaisWhole}</p>
+              {pizzaAdicionais
+                .filter((a) => a.tipo === 'inteira')
+                .map((a) => {
+                  const isSelected = adicionaisSelecionados.some((s) => s.nome === a.nome)
+                  return (
+                    <button
+                      key={a.nome}
+                      type="button"
+                      onClick={() => toggleAdicional(a)}
+                      className="flex w-full items-center justify-between gap-2.5 border-b border-white/10 py-2 text-left last:border-0"
+                    >
+                      <span className="text-sm font-semibold text-white">{lang === 'en' ? a.nomeEn : a.nome}</span>
+                      <span
+                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
+                          isSelected ? 'bg-orange-500 text-white' : 'bg-white/10 text-transparent'
+                        }`}
+                      >
+                        ✓
+                      </span>
+                    </button>
+                  )
+                })}
+
+              <p className="mb-2 mt-3 text-[11px] font-semibold uppercase tracking-wide text-white/50">{tw.adicionaisSlice}</p>
+              {pizzaAdicionais
+                .filter((a) => a.tipo === 'pedaco')
+                .map((a) => {
+                  const isSelected = adicionaisSelecionados.some((s) => s.nome === a.nome)
+                  return (
+                    <button
+                      key={a.nome}
+                      type="button"
+                      onClick={() => toggleAdicional(a)}
+                      className="flex w-full items-center justify-between gap-2.5 border-b border-white/10 py-2 text-left last:border-0"
+                    >
+                      <span className="text-sm font-semibold text-white">{lang === 'en' ? a.nomeEn : a.nome}</span>
+                      <span
+                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
+                          isSelected ? 'bg-orange-500 text-white' : 'bg-white/10 text-transparent'
+                        }`}
+                      >
+                        ✓
+                      </span>
+                    </button>
+                  )
+                })}
+            </div>
+          )}
+
+          {step === 'adicionalScope' && (
+            <div>
+              <button
+                type="button"
+                onClick={() => pickScope('inteira')}
+                className="flex w-full items-center justify-between gap-2.5 border-b border-white/10 py-2.5 text-left last:border-0 hover:bg-white/5"
+              >
+                <span className="text-sm font-semibold text-white">{tw.scopeWhole}</span>
+              </button>
+              {selected.map((item) => (
+                <button
+                  key={item.numero}
+                  type="button"
+                  onClick={() => pickScope(itemName(item, lang))}
+                  className="flex w-full items-center justify-between gap-2.5 border-b border-white/10 py-2.5 text-left last:border-0 hover:bg-white/5"
+                >
+                  <span className="text-sm font-semibold text-white">{itemName(item, lang)}</span>
+                </button>
+              ))}
+            </div>
+          )}
+
           {step === 'soda' && (
             <div>
               {sodaOptions.map((flavor) => (
@@ -260,6 +389,18 @@ export function PizzaOrderWizard({
             className="mt-3 w-full rounded-xl bg-orange-500 py-2.5 text-sm font-bold text-white shadow-md transition-transform active:scale-95 hover:bg-orange-400 disabled:opacity-40"
           >
             {tw.continueLabel} — {localizePrice(totalPriceLabel, lang)}
+          </button>
+        )}
+
+        {step === 'adicionais' && (
+          <button
+            type="button"
+            onClick={confirmAdicionais}
+            className="mt-3 w-full rounded-xl bg-orange-500 py-2.5 text-sm font-bold text-white shadow-md transition-transform active:scale-95 hover:bg-orange-400"
+          >
+            {adicionaisSelecionados.length > 0
+              ? `${tw.continueLabel} — ${localizePrice(totalPriceLabel, lang)}`
+              : tw.adicionaisSkip}
           </button>
         )}
       </div>

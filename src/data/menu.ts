@@ -129,6 +129,32 @@ export const bordaOpcoes: { nome: string; nomeEn: string }[] = [
   { nome: 'Doce de Leite', nomeEn: 'Dulce de Leche' },
 ]
 
+export interface PizzaAdicional {
+  nome: string
+  nomeEn: string
+  // 'inteira': $1 fixo pra pizza inteira, não importa o tamanho.
+  // 'pedaco': $1 por fatia — na pizza de 1 sabor só, cai automaticamente na pizza inteira;
+  // em pizza de 2/3 sabores, a pessoa escolhe se é na pizza inteira ou só num dos sabores.
+  tipo: 'inteira' | 'pedaco'
+}
+
+export const pizzaAdicionais: PizzaAdicional[] = [
+  { nome: 'Ervilha', nomeEn: 'Peas', tipo: 'inteira' },
+  { nome: 'Milho', nomeEn: 'Corn', tipo: 'inteira' },
+  { nome: 'Tomate', nomeEn: 'Tomato', tipo: 'inteira' },
+  { nome: 'Brócolis', nomeEn: 'Broccoli', tipo: 'inteira' },
+  { nome: 'Ovo', nomeEn: 'Egg', tipo: 'inteira' },
+  { nome: 'Pimentão', nomeEn: 'Bell Pepper', tipo: 'inteira' },
+  { nome: 'Cebola', nomeEn: 'Onion', tipo: 'inteira' },
+  { nome: 'Mussarela', nomeEn: 'Mozzarella', tipo: 'pedaco' },
+  { nome: 'Presunto', nomeEn: 'Ham', tipo: 'pedaco' },
+  { nome: 'Bacon', nomeEn: 'Bacon', tipo: 'pedaco' },
+  { nome: 'Calabresa', nomeEn: 'Sausage', tipo: 'pedaco' },
+  { nome: 'Carne', nomeEn: 'Beef', tipo: 'pedaco' },
+  { nome: 'Frango', nomeEn: 'Chicken', tipo: 'pedaco' },
+  { nome: 'Palmito', nomeEn: 'Heart of Palm', tipo: 'pedaco' },
+]
+
 export const pizzasSalgadasTradicionais: MenuItem[] = [
   { numero: 1, nome: 'A Moda do Pizzaiolo', descricao: 'Milho, ervilha, pimentão e calabresa.', descricaoEn: 'Corn, peas, bell pepper and Brazilian sausage.' },
   { numero: 2, nome: 'Atum', descricao: 'Atum e cebola.', descricaoEn: 'Tuna and onion.' },
