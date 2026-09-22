@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useCart } from '../context/CartContext'
 import { translations, type Lang } from '../utils/translations'
 import { calculateTax, formatCurrency, parsePriceLabel } from '../utils/price'
-import { buildOrderMessage, buildWhatsAppUrl, type OrderDelivery } from '../utils/whatsapp'
+import { buildOrderMessage, buildWhatsAppUrl, type OrderDelivery, type PaymentMethod } from '../utils/whatsapp'
 import { calculateDeliveryFee, searchAddressSuggestions, type AddressSuggestion, type DeliveryQuote } from '../utils/delivery'
 import { ConfirmDialog } from './ConfirmDialog'
 
@@ -14,6 +14,10 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
   const td = translations[lang].delivery
   const [confirmRemoveId, setConfirmRemoveId] = useState<string | null>(null)
   const [confirmClear, setConfirmClear] = useState(false)
+
+  const [customerName, setCustomerName] = useState('')
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null)
+  const [changeFor, setChangeFor] = useState('')
 
   const [mode, setMode] = useState<'pickup' | 'delivery'>('pickup')
   const [address, setAddress] = useState('')
@@ -54,7 +58,10 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
   const deliveryFee = mode === 'delivery' && quote && !addressStale ? quote.fee : 0
   const taxAmount = calculateTax(totalKnown + deliveryFee)
   const grandTotal = totalKnown + deliveryFee + taxAmount
-  const canSend = mode === 'pickup' || (quote !== null && !addressStale)
+  const canSend =
+    customerName.trim().length > 0 &&
+    paymentMethod !== null &&
+    (mode === 'pickup' || (quote !== null && !addressStale))
 
   const pickSuggestion = async (suggestion: AddressSuggestion) => {
     setAddress(suggestion.label)
@@ -73,9 +80,10 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
   }
 
   const handleSend = () => {
+    if (!paymentMethod) return
     const delivery: OrderDelivery =
       mode === 'delivery' && quote && !addressStale ? { mode: 'delivery', quote } : { mode: 'pickup' }
-    const message = buildOrderMessage(items, lang, delivery)
+    const message = buildOrderMessage(items, lang, customerName.trim(), { method: paymentMethod, changeFor }, delivery)
     window.open(buildWhatsAppUrl(message), '_blank', 'noopener,noreferrer')
   }
 
@@ -162,6 +170,19 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
         {items.length > 0 && (
           <div className="border-t border-white/10 px-4 py-3">
             <div className="mb-3">
+              <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-white/50">
+                {t.customerName}
+              </label>
+              <input
+                type="text"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                placeholder={t.customerNamePlaceholder}
+                className="w-full rounded-lg bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-orange-400"
+              />
+            </div>
+
+            <div className="mb-3">
               <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-white/50">{td.title}</p>
               <div className="flex gap-2">
                 <button
@@ -245,6 +266,37 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
                   {deliveryError && (
                     <p className="text-[11px] text-red-400">{deliveryError === 'out_of_range' ? td.outOfRange : td.error}</p>
                   )}
+                </div>
+              )}
+            </div>
+
+            <div className="mb-3">
+              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-white/50">{t.paymentTitle}</p>
+              <div className="grid grid-cols-3 gap-2">
+                {(['cash', 'debit', 'credit'] as PaymentMethod[]).map((method) => (
+                  <button
+                    key={method}
+                    type="button"
+                    onClick={() => setPaymentMethod(method)}
+                    className={`rounded-lg py-2 text-xs font-bold transition-colors ${
+                      paymentMethod === method ? 'bg-orange-500 text-white' : 'bg-white/5 text-white/60 hover:bg-white/10'
+                    }`}
+                  >
+                    {method === 'cash' ? t.paymentCash : method === 'debit' ? t.paymentDebit : t.paymentCredit}
+                  </button>
+                ))}
+              </div>
+
+              {paymentMethod === 'cash' && (
+                <div className="mt-2">
+                  <label className="mb-1 block text-[11px] font-semibold text-white/50">{t.changeFor}</label>
+                  <input
+                    type="text"
+                    value={changeFor}
+                    onChange={(e) => setChangeFor(e.target.value)}
+                    placeholder={t.changeForPlaceholder}
+                    className="w-full rounded-lg bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-orange-400"
+                  />
                 </div>
               )}
             </div>

@@ -8,6 +8,19 @@ export const WHATSAPP_NUMBER = '5511958776672'
 
 export type OrderDelivery = { mode: 'pickup' } | { mode: 'delivery'; quote: DeliveryQuote }
 
+export type PaymentMethod = 'cash' | 'debit' | 'credit'
+
+export interface OrderPayment {
+  method: PaymentMethod
+  changeFor?: string
+}
+
+const paymentLabels: Record<PaymentMethod, { pt: string; en: string }> = {
+  cash: { pt: 'Dinheiro', en: 'Cash' },
+  debit: { pt: 'Cartão de Débito', en: 'Debit Card' },
+  credit: { pt: 'Cartão de Crédito', en: 'Credit Card' },
+}
+
 function pad(n: number): string {
   return n.toString().padStart(2, '0')
 }
@@ -22,7 +35,13 @@ function formatOrderDateTime(isPt: boolean): string {
   return isPt ? `${d}/${m}/${y} ${time}` : `${m}/${d}/${y} ${time}`
 }
 
-export function buildOrderMessage(items: CartItem[], lang: Lang, delivery?: OrderDelivery): string {
+export function buildOrderMessage(
+  items: CartItem[],
+  lang: Lang,
+  customerName: string,
+  payment: OrderPayment,
+  delivery?: OrderDelivery,
+): string {
   const isPt = lang === 'pt'
   const lines: string[] = []
 
@@ -31,7 +50,7 @@ export function buildOrderMessage(items: CartItem[], lang: Lang, delivery?: Orde
   lines.push('')
   lines.push(isPt ? `Pedido via WhatsApp — ${formatOrderDateTime(isPt)}` : `WhatsApp order — ${formatOrderDateTime(isPt)}`)
   lines.push('')
-  lines.push(isPt ? 'Cliente: ' : 'Customer: ')
+  lines.push(isPt ? `Cliente: ${customerName}` : `Customer: ${customerName}`)
 
   if (delivery?.mode === 'delivery') {
     lines.push(isPt ? `Endereço: ${delivery.quote.address}` : `Address: ${delivery.quote.address}`)
@@ -42,6 +61,11 @@ export function buildOrderMessage(items: CartItem[], lang: Lang, delivery?: Orde
     )
   } else {
     lines.push(isPt ? 'Retirada no local' : 'Pickup')
+  }
+
+  lines.push(isPt ? `Pagamento: ${paymentLabels[payment.method].pt}` : `Payment: ${paymentLabels[payment.method].en}`)
+  if (payment.method === 'cash' && payment.changeFor?.trim()) {
+    lines.push(isPt ? `Troco para: $${payment.changeFor.trim()}` : `Change for: $${payment.changeFor.trim()}`)
   }
 
   lines.push('')
