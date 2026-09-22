@@ -325,23 +325,30 @@ export interface Bebida {
   preco?: string
 }
 
+export interface Sabor {
+  nome: string
+  preco?: string // presente só quando o sabor foge do preço base do tamanho
+}
+
 export interface RefrigeranteTamanho {
   key: string
   preco: string
-  sabores: string[]
-  saboresZero?: string[]
-  excecoes?: { nome: string; preco: string }[]
+  sabores: Sabor[]
+  saboresZero?: Sabor[]
 }
 
 export const refrigerantes: RefrigeranteTamanho[] = [
   {
     key: '2l',
     preco: '$6,00 +Tax',
-    sabores: ['Fanta', 'Sprite'],
-    saboresZero: ['Pepsi Zero'],
-    excecoes: [
+    sabores: [
+      { nome: 'Fanta' },
+      { nome: 'Sprite' },
       { nome: 'Guaraná Antarctica', preco: '$7,00 +Tax' },
       { nome: 'Coca-Cola', preco: '$7,00 +Tax' },
+    ],
+    saboresZero: [
+      { nome: 'Pepsi Zero' },
       { nome: 'Guaraná Antarctica Zero', preco: '$7,00 +Tax' },
       { nome: 'Coca-Cola Zero', preco: '$7,00 +Tax' },
     ],
@@ -349,12 +356,20 @@ export const refrigerantes: RefrigeranteTamanho[] = [
   {
     key: '600ml',
     preco: '$4,00 +Tax',
-    sabores: ['Coca-Cola', 'Fanta', 'Sprite'],
+    sabores: [{ nome: 'Coca-Cola' }, { nome: 'Fanta' }, { nome: 'Sprite' }],
   },
   {
     key: 'lata',
     preco: '$3,00 +Tax',
-    sabores: ['Coca-Cola', 'Coca-Cola Zero', 'Fanta', 'Sprite', 'Pepsi Zero', 'Guaraná Antarctica', 'Guaraná Antarctica Zero'],
+    sabores: [
+      { nome: 'Coca-Cola' },
+      { nome: 'Coca-Cola Zero' },
+      { nome: 'Fanta' },
+      { nome: 'Sprite' },
+      { nome: 'Pepsi Zero' },
+      { nome: 'Guaraná Antarctica' },
+      { nome: 'Guaraná Antarctica Zero' },
+    ],
   },
 ]
 

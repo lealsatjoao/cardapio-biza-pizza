@@ -8,6 +8,7 @@ import {
   sucosCaixa,
   sucosNaturais,
   type Bebida,
+  type Sabor,
 } from '../data/menu'
 import { useCart } from '../context/CartContext'
 import { translations, type Lang } from '../utils/translations'
@@ -26,26 +27,36 @@ function bebidaNome(item: Bebida, lang: Lang) {
 
 function FlavorPills({
   flavors,
+  basePrice,
+  lang,
   onAdd,
 }: {
-  flavors: string[]
-  onAdd: (flavor: string) => void
+  flavors: Sabor[]
+  basePrice: string
+  lang: Lang
+  onAdd: (flavor: string, priceLabel: string) => void
 }) {
   return (
     <div className="flex flex-wrap gap-1.5">
-      {flavors.map((f) => (
-        <button
-          key={f}
-          type="button"
-          onClick={() => onAdd(f)}
-          className="flex items-center gap-1.5 rounded-full bg-white/10 py-1 pl-2.5 pr-1.5 text-xs font-semibold text-white transition-colors hover:bg-white/20"
-        >
-          {flavorName(f)}
-          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-orange-500/90 text-[11px] font-bold leading-none text-white">
-            +
-          </span>
-        </button>
-      ))}
+      {flavors.map((f) => {
+        const priceLabel = localizePrice(f.preco ?? basePrice, lang)
+        return (
+          <button
+            key={f.nome}
+            type="button"
+            onClick={() => onAdd(f.nome, priceLabel)}
+            className={`flex items-center gap-1.5 rounded-full py-1 pl-2.5 pr-1.5 text-xs font-semibold text-white transition-colors ${
+              f.preco ? 'bg-orange-500/20 ring-1 ring-orange-400/40 hover:bg-orange-500/30' : 'bg-white/10 hover:bg-white/20'
+            }`}
+          >
+            {flavorName(f.nome)}
+            {f.preco && <span className="text-[10px] font-bold text-orange-300">{priceLabel}</span>}
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-orange-500/90 text-[11px] font-bold leading-none text-white">
+              +
+            </span>
+          </button>
+        )
+      })}
     </div>
   )
 }
@@ -89,7 +100,9 @@ export function BebidasSection({ lang }: { lang: Lang }) {
                 </p>
                 <FlavorPills
                   flavors={soda2L.sabores}
-                  onAdd={(f) => addSoda(f, t.bebidas.soda2L, localizePrice(soda2L.preco, lang))}
+                  basePrice={soda2L.preco}
+                  lang={lang}
+                  onAdd={(f, priceLabel) => addSoda(f, t.bebidas.soda2L, priceLabel)}
                 />
               </div>
               {soda2L.saboresZero && (
@@ -99,30 +112,13 @@ export function BebidasSection({ lang }: { lang: Lang }) {
                   </p>
                   <FlavorPills
                     flavors={soda2L.saboresZero}
-                    onAdd={(f) => addSoda(f, t.bebidas.soda2L, localizePrice(soda2L.preco, lang))}
+                    basePrice={soda2L.preco}
+                    lang={lang}
+                    onAdd={(f, priceLabel) => addSoda(f, t.bebidas.soda2L, priceLabel)}
                   />
                 </div>
               )}
             </div>
-
-            {soda2L.excecoes && (
-              <div className="mt-3 flex flex-col gap-1.5 border-t border-white/10 pt-3">
-                {soda2L.excecoes.map((ex) => (
-                  <div key={ex.nome} className="flex items-center justify-between gap-3">
-                    <span className="text-sm font-semibold text-white">{flavorName(ex.nome)}</span>
-                    <div className="flex items-center gap-2">
-                      <span className="whitespace-nowrap rounded-full bg-amber-500/90 px-2.5 py-1 text-xs font-bold text-white">
-                        {localizePrice(ex.preco, lang)}
-                      </span>
-                      <AddButton
-                        label={t.cart.add}
-                        onClick={() => addSoda(ex.nome, t.bebidas.soda2L, localizePrice(ex.preco, lang))}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
           </SectionCard>
 
           <SectionCard>
@@ -134,7 +130,9 @@ export function BebidasSection({ lang }: { lang: Lang }) {
             </div>
             <FlavorPills
               flavors={soda600.sabores}
-              onAdd={(f) => addSoda(f, t.bebidas.soda600, localizePrice(soda600.preco, lang))}
+              basePrice={soda600.preco}
+              lang={lang}
+              onAdd={(f, priceLabel) => addSoda(f, t.bebidas.soda600, priceLabel)}
             />
           </SectionCard>
 
@@ -147,27 +145,10 @@ export function BebidasSection({ lang }: { lang: Lang }) {
             </div>
             <FlavorPills
               flavors={sodaLata.sabores}
-              onAdd={(f) => addSoda(f, t.bebidas.sodaCan, localizePrice(sodaLata.preco, lang))}
+              basePrice={sodaLata.preco}
+              lang={lang}
+              onAdd={(f, priceLabel) => addSoda(f, t.bebidas.sodaCan, priceLabel)}
             />
-
-            {sodaLata.excecoes && (
-              <div className="mt-3 flex flex-col gap-1.5 border-t border-white/10 pt-3">
-                {sodaLata.excecoes.map((ex) => (
-                  <div key={ex.nome} className="flex items-center justify-between gap-3">
-                    <span className="text-sm font-semibold text-white">{flavorName(ex.nome)}</span>
-                    <div className="flex items-center gap-2">
-                      <span className="whitespace-nowrap rounded-full bg-amber-500/90 px-2.5 py-1 text-xs font-bold text-white">
-                        {localizePrice(ex.preco, lang)}
-                      </span>
-                      <AddButton
-                        label={t.cart.add}
-                        onClick={() => addSoda(ex.nome, t.bebidas.sodaCan, localizePrice(ex.preco, lang))}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
           </SectionCard>
         </>
       )}
