@@ -6,6 +6,7 @@ import { calculateTax, formatCurrency, parsePriceLabel } from '../utils/price'
 import { buildOrderMessage, buildWhatsAppUrl, type OrderDelivery, type PaymentMethod } from '../utils/whatsapp'
 import { nextControleNumber } from '../utils/orderCounter'
 import { sortForReceipt } from '../utils/cartOrder'
+import { loadSavedCustomer, saveCustomer } from '../utils/savedCustomer'
 import {
   calculateDeliveryFee,
   searchAddressSuggestions,
@@ -24,16 +25,17 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
   const [confirmRemoveId, setConfirmRemoveId] = useState<string | null>(null)
   const [confirmClear, setConfirmClear] = useState(false)
 
-  const [customerName, setCustomerName] = useState('')
-  const [customerPhone, setCustomerPhone] = useState('')
+  const [savedCustomer] = useState(loadSavedCustomer)
+  const [customerName, setCustomerName] = useState(savedCustomer.name ?? '')
+  const [customerPhone, setCustomerPhone] = useState(savedCustomer.phone ?? '')
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null)
   const [changeFor, setChangeFor] = useState('')
   const [sending, setSending] = useState(false)
 
   const [mode, setMode] = useState<'pickup' | 'delivery'>('pickup')
-  const [address, setAddress] = useState('')
-  const [zip, setZip] = useState('')
-  const [aptUnit, setAptUnit] = useState('')
+  const [address, setAddress] = useState(savedCustomer.address ?? '')
+  const [zip, setZip] = useState(savedCustomer.zip ?? '')
+  const [aptUnit, setAptUnit] = useState(savedCustomer.aptUnit ?? '')
   const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([])
   const [searching, setSearching] = useState(false)
   const [searchUnavailable, setSearchUnavailable] = useState(false)
@@ -135,6 +137,14 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
     } else {
       window.open(url, '_blank', 'noopener,noreferrer')
     }
+    // Guarda os dados só neste aparelho — preenche sozinho da próxima vez que a pessoa pedir.
+    saveCustomer({
+      name: customerName.trim(),
+      phone: customerPhone.trim(),
+      zip: zip.trim() || undefined,
+      address: mode === 'delivery' ? address.trim() || undefined : undefined,
+      aptUnit: aptUnit.trim() || undefined,
+    })
     setSending(false)
   }
 
