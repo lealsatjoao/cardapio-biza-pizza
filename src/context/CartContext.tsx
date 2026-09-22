@@ -8,9 +8,11 @@ function lineKey(item: { name: string; note?: string; observation?: string; pric
   return `${item.name}|${item.note ?? ''}|${item.observation ?? ''}|${item.priceLabel ?? ''}`
 }
 
+// sessionStorage (não localStorage) de propósito: o carrinho sobrevive a um F5/recarregar a
+// página, mas some sozinho quando a pessoa fecha a aba — pedido do João, 23/09/2026.
 function loadInitialCart(): CartItem[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
+    const raw = sessionStorage.getItem(STORAGE_KEY)
     if (!raw) return []
     const parsed = JSON.parse(raw)
     return Array.isArray(parsed) ? parsed : []
@@ -48,9 +50,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(items))
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(items))
     } catch {
-      // localStorage indisponível (modo privado etc.) — carrinho segue funcionando em memória
+      // sessionStorage indisponível (modo privado etc.) — carrinho segue funcionando em memória
     }
   }, [items])
 
