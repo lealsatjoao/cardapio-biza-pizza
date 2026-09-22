@@ -8,11 +8,42 @@ export const WHATSAPP_NUMBER = '5511958776672'
 
 export type OrderDelivery = { mode: 'pickup' } | { mode: 'delivery'; quote: DeliveryQuote }
 
+function pad(n: number): string {
+  return n.toString().padStart(2, '0')
+}
+
+// Data/hora no mesmo formato da notinha da loja (DD/MM/AAAA HH:mm em pt, MM/DD/AAAA em en).
+function formatOrderDateTime(isPt: boolean): string {
+  const now = new Date()
+  const time = `${pad(now.getHours())}:${pad(now.getMinutes())}`
+  const d = pad(now.getDate())
+  const m = pad(now.getMonth() + 1)
+  const y = now.getFullYear()
+  return isPt ? `${d}/${m}/${y} ${time}` : `${m}/${d}/${y} ${time}`
+}
+
 export function buildOrderMessage(items: CartItem[], lang: Lang, delivery?: OrderDelivery): string {
   const isPt = lang === 'pt'
   const lines: string[] = []
 
-  lines.push(isPt ? 'Olá! Gostaria de fazer o seguinte pedido:' : 'Hi! I would like to place the following order:')
+  lines.push('BIZA PIZZAS')
+  lines.push(isPt ? 'North East Philadelphia' : 'North East Philadelphia')
+  lines.push('')
+  lines.push(isPt ? `Pedido via WhatsApp — ${formatOrderDateTime(isPt)}` : `WhatsApp order — ${formatOrderDateTime(isPt)}`)
+  lines.push('')
+  lines.push(isPt ? 'Cliente: ' : 'Customer: ')
+
+  if (delivery?.mode === 'delivery') {
+    lines.push(isPt ? `Endereço: ${delivery.quote.address}` : `Address: ${delivery.quote.address}`)
+    lines.push(
+      isPt
+        ? `Distância: ${delivery.quote.distanceMi.toFixed(1)} mi`
+        : `Distance: ${delivery.quote.distanceMi.toFixed(1)} mi`,
+    )
+  } else {
+    lines.push(isPt ? 'Retirada no local' : 'Pickup')
+  }
+
   lines.push('')
 
   let total = 0
@@ -42,25 +73,12 @@ export function buildOrderMessage(items: CartItem[], lang: Lang, delivery?: Orde
   const unknownSuffix = hasUnknown ? (isPt ? ' (+ itens sem preço fixo)' : ' (+ items without fixed price)') : ''
 
   lines.push('')
-  lines.push(isPt ? `Subtotal: ${formatCurrency(total)}${unknownSuffix}` : `Subtotal: ${formatCurrency(total)}${unknownSuffix}`)
-
+  lines.push(isPt ? `Total Itens: ${formatCurrency(total)}${unknownSuffix}` : `Items Total: ${formatCurrency(total)}${unknownSuffix}`)
   if (delivery?.mode === 'delivery') {
-    lines.push(isPt ? `Entrega para: ${delivery.quote.address}` : `Delivering to: ${delivery.quote.address}`)
-    lines.push(
-      isPt
-        ? `Distância: ${delivery.quote.distanceMi.toFixed(1)} mi`
-        : `Distance: ${delivery.quote.distanceMi.toFixed(1)} mi`,
-    )
-    lines.push(isPt ? `Taxa de entrega: ${formatCurrency(deliveryFee)}` : `Delivery fee: ${formatCurrency(deliveryFee)}`)
-  } else {
-    lines.push(isPt ? 'Retirada no local' : 'Pickup')
+    lines.push(isPt ? `Taxa Entrega: ${formatCurrency(deliveryFee)}` : `Delivery Fee: ${formatCurrency(deliveryFee)}`)
   }
-
   lines.push(isPt ? `Taxa (8%): ${formatCurrency(taxAmount)}` : `Tax (8%): ${formatCurrency(taxAmount)}`)
   lines.push(isPt ? `Total: ${formatCurrency(grandTotal)}${unknownSuffix}` : `Total: ${formatCurrency(grandTotal)}${unknownSuffix}`)
-
-  lines.push('')
-  lines.push(isPt ? 'Nome: ' : 'Name: ')
 
   return lines.join('\n')
 }
