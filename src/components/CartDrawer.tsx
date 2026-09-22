@@ -365,7 +365,8 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
                   <div key={item.id} className="rounded-xl bg-white/5 p-3 ring-1 ring-white/10">
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <p className="text-sm font-semibold text-white">{item.name}</p>
+                        <p className="text-sm font-semibold text-white">{item.receiptLabel ?? item.name}</p>
+                        {item.receiptLabel && <p className="text-xs text-white/60">{item.name}</p>}
                         {item.note && <p className="whitespace-pre-line text-xs text-white/60">{item.note}</p>}
                         {item.observation && (
                           <p className="mt-0.5 text-xs italic text-amber-300/80">"{item.observation}"</p>
