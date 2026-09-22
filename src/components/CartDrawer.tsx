@@ -42,6 +42,7 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
     controle: number | null
     name: string
     paymentMethod: PaymentMethod
+    mode: 'pickup' | 'delivery'
   } | null>(null)
   const [submitError, setSubmitError] = useState(false)
 
@@ -271,7 +272,7 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
     saveCustomer(infoToSave)
     setSavedCustomer(infoToSave)
     saveCustomerRecord(customerPhone, infoToSave)
-    setConfirmedOrder({ controle, name: customerName.trim(), paymentMethod })
+    setConfirmedOrder({ controle, name: customerName.trim(), paymentMethod, mode })
     clear()
     setSending(false)
   }
@@ -313,7 +314,7 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
                 </>
               )}
             </p>
-            {confirmedOrder.paymentMethod === 'zelle' && (
+            {confirmedOrder.paymentMethod === 'zelle' && confirmedOrder.mode === 'delivery' && (
               <div className="w-full rounded-xl bg-white/5 p-4 ring-1 ring-white/10">
                 <p className="text-sm font-semibold text-white">{t.zelleNumber.replace('{n}', STORE_PHONE)}</p>
                 <p className="mt-1 text-xs text-white/70">{t.zelleInstructions}</p>
