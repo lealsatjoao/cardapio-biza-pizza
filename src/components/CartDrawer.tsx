@@ -3,10 +3,11 @@ import { useCart } from '../context/CartContext'
 import { isEsfihaFlavorName } from '../data/menu'
 import { translations, type Lang } from '../utils/translations'
 import { calculateTax, formatCurrency, parsePriceLabel } from '../utils/price'
-import { buildOrderMessage, buildWhatsAppUrl, type OrderDelivery, type PaymentMethod } from '../utils/whatsapp'
+import { buildReceipt, type OrderDelivery, type PaymentMethod } from '../utils/receipt'
 import { nextControleNumber } from '../utils/orderCounter'
 import { sortForReceipt } from '../utils/cartOrder'
 import { loadSavedCustomer, saveCustomer } from '../utils/savedCustomer'
+import { submitOrder } from '../utils/ordersService'
 import {
   calculateDeliveryFee,
   searchAddressSuggestions,
@@ -34,6 +35,8 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null)
   const [changeFor, setChangeFor] = useState('')
   const [sending, setSending] = useState(false)
+  const [confirmedOrder, setConfirmedOrder] = useState<{ controle: number | null; name: string } | null>(null)
+  const [submitError, setSubmitError] = useState(false)
 
   const [mode, setMode] = useState<'pickup' | 'delivery'>('pickup')
   const [address, setAddress] = useState('')
@@ -103,6 +106,13 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address, zip])
 
+  useEffect(() => {
+    if (!open) {
+      setConfirmedOrder(null)
+      setSubmitError(false)
+    }
+  }, [open])
+
   if (!open) return null
 
   const deliveryFee = mode === 'delivery' && quote && !addressStale ? quote.fee : 0
@@ -141,16 +151,13 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
   const handleSend = async () => {
     if (!paymentMethod || sending) return
     setSending(true)
-    // Abre a aba em branco já na hora do clique (gesto do usuário) pra não cair no
-    // bloqueador de pop-up do navegador — só navega pra URL do WhatsApp depois que o
-    // número de Controle chegar (evita "window.open" tardio, que alguns navegadores bloqueiam).
-    const whatsappWindow = window.open('', '_blank')
+    setSubmitError(false)
     const controle = await nextControleNumber()
     const delivery: OrderDelivery =
       mode === 'delivery' && quote && !addressStale
         ? { mode: 'delivery', quote, aptUnit: aptUnit.trim() || undefined }
         : { mode: 'pickup' }
-    const message = buildOrderMessage(
+    const { text, totals } = buildReceipt(
       items,
       customerName.trim(),
       customerPhone.trim(),
@@ -158,11 +165,20 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
       delivery,
       controle,
     )
-    const url = buildWhatsAppUrl(message)
-    if (whatsappWindow) {
-      whatsappWindow.location.href = url
-    } else {
-      window.open(url, '_blank', 'noopener,noreferrer')
+    try {
+      await submitOrder({
+        controle,
+        createdAt: Date.now(),
+        customerName: customerName.trim(),
+        customerPhone: customerPhone.trim(),
+        mode,
+        grandTotal: totals.grandTotal,
+        receiptText: text,
+      })
+    } catch {
+      setSending(false)
+      setSubmitError(true)
+      return
     }
     // Guarda os dados só neste aparelho — preenche sozinho da próxima vez que a pessoa pedir.
     saveCustomer({
@@ -174,6 +190,8 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
       lastSuggestion: mode === 'delivery' && !addressStale ? (selectedSuggestion ?? undefined) : undefined,
       lastQuote: mode === 'delivery' && !addressStale ? (quote ?? undefined) : undefined,
     })
+    setConfirmedOrder({ controle, name: customerName.trim() })
+    clear()
     setSending(false)
   }
 
@@ -201,6 +219,31 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
           </button>
         </div>
 
+        {confirmedOrder ? (
+          <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-600/20 text-3xl">✓</div>
+            <h3 className="text-lg font-bold text-white">{t.orderConfirmedTitle}</h3>
+            <p className="text-sm text-white/70">
+              {t.orderConfirmedMsg.replace('{name}', confirmedOrder.name)}
+              {confirmedOrder.controle !== null && (
+                <>
+                  <br />
+                  {t.orderConfirmedControle.replace('{n}', String(confirmedOrder.controle))}
+                </>
+              )}
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setConfirmedOrder(null)
+                onClose()
+              }}
+              className="mt-3 w-full rounded-xl bg-orange-500 py-2.5 text-sm font-bold text-white shadow-md transition-transform active:scale-95 hover:bg-orange-400"
+            >
+              {t.close}
+            </button>
+          </div>
+        ) : (
         <div className="flex-1 overflow-y-auto">
         <div className="px-4 py-3">
           {items.length === 0 ? (
@@ -482,13 +525,14 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
                 {t.esfihaMinWarning.replace('{n}', String(5 - esfihaQty))}
               </p>
             )}
+            {submitError && <p className="mb-2 text-[11px] font-semibold text-red-400">{t.submitError}</p>}
             <button
               type="button"
               onClick={handleSend}
               disabled={!canSend}
               className="mb-2 w-full rounded-xl bg-green-600 py-2.5 text-sm font-bold text-white shadow-md transition-transform active:scale-95 hover:bg-green-500 disabled:opacity-40 disabled:active:scale-100"
             >
-              {sending ? t.sending : t.sendWhatsapp}
+              {sending ? t.sending : t.confirmOrder}
             </button>
             <button
               type="button"
@@ -500,6 +544,7 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
           </div>
         )}
         </div>
+        )}
       </div>
 
       <ConfirmDialog

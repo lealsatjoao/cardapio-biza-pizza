@@ -3,9 +3,6 @@ import type { DeliveryQuote } from './delivery'
 import { calculateTax, parsePriceLabel } from './price'
 import { sortForReceipt } from './cartOrder'
 
-// Número da Biza Pizza (DDI 55 + DDD + número) usado para receber os pedidos via WhatsApp.
-export const WHATSAPP_NUMBER = '5511958776672'
-
 export type OrderDelivery = { mode: 'pickup' } | { mode: 'delivery'; quote: DeliveryQuote; aptUnit?: string }
 
 export type PaymentMethod = 'cash' | 'zelle' | 'venmo' | 'card'
@@ -15,9 +12,9 @@ export interface OrderPayment {
   changeFor?: string
 }
 
-// A mensagem imita a notinha física da loja (foto de referência, 22/09/2026) — por isso os
-// rótulos ficam sempre em português, igual o sistema de caixa deles, mesmo que o cliente
-// tenha navegado o cardápio em inglês (quem lê essa mensagem é a equipe da loja).
+// A notinha imprimível imita a notinha física da loja (foto de referência, 22/09/2026) — por
+// isso os rótulos ficam sempre em português, igual o sistema de caixa deles, mesmo que o
+// cliente tenha navegado o cardápio em inglês (quem lê essa notinha é a equipe da loja).
 const paymentLabels: Record<PaymentMethod, string> = {
   cash: 'Dinheiro',
   zelle: 'Zelle',
@@ -62,14 +59,24 @@ const COL_QTY = 5
 const COL_UNIT = 9
 const COL_TOTAL = 9
 
-export function buildOrderMessage(
+export interface OrderTotals {
+  itemsBaseTotal: number
+  addonsTotal: number
+  deliveryFee: number
+  taxAmount: number
+  grandTotal: number
+}
+
+// Monta o texto da notinha (pro balcão ver/imprimir) e os totais calculados (pra guardar no
+// pedido). Cada item/adicional/borda/refrigerante já vem em linha própria no note do item.
+export function buildReceipt(
   items: CartItem[],
   customerName: string,
   customerPhone: string,
   payment: OrderPayment,
   delivery: OrderDelivery,
   controle: number | null,
-): string {
+): { text: string; totals: OrderTotals } {
   const lines: string[] = []
 
   lines.push('BIZA PIZZAS')
@@ -77,8 +84,8 @@ export function buildOrderMessage(
   lines.push('2677487163')
   lines.push('')
   lines.push(formatOrderDateTime())
-  lines.push('Atendente: WHATSAPP')
-  lines.push(`Controle: ${controle !== null ? controle : '-'} - WhatsApp`)
+  lines.push('Atendente: SITE')
+  lines.push(`Controle: ${controle !== null ? controle : '-'} - Site`)
   lines.push(`Cliente: ${customerName}`)
   lines.push('')
 
@@ -153,8 +160,8 @@ export function buildOrderMessage(
 
   const deliveryFee = delivery.mode === 'delivery' ? delivery.quote.fee : 0
   const taxAmount = calculateTax(itemsBaseTotal + addonsTotal + deliveryFee)
-  const totalAdicional = addonsTotal + taxAmount
   const grandTotal = itemsBaseTotal + addonsTotal + deliveryFee + taxAmount
+  const totalAdicional = addonsTotal + taxAmount
   const unknownSuffix = hasUnknown ? ' (+ itens sem preço fixo)' : ''
 
   lines.push(totalsLine('Total Itens', money(itemsBaseTotal) + unknownSuffix))
@@ -171,9 +178,8 @@ export function buildOrderMessage(
   lines.push('')
   lines.push('Volte Sempre!!')
 
-  return '```\n' + lines.join('\n') + '\n```'
-}
-
-export function buildWhatsAppUrl(message: string): string {
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`
+  return {
+    text: lines.join('\n'),
+    totals: { itemsBaseTotal, addonsTotal, deliveryFee, taxAmount, grandTotal },
+  }
 }
