@@ -24,9 +24,17 @@ export const translations = {
       crustNotice:
         'Todas as pizzas acompanham borda recheada inclusa (Cheddar, Catupiry, Chocolate ou Doce de Leite).',
     },
-    pizzaBuilder: {
-      chooseUpTo: 'Escolha até {max} sabores',
-      selectedCount: '{count} de {max} sabores escolhidos',
+    pizzaWizard: {
+      sizeTitle: 'Qual tamanho?',
+      moreTitle: 'Quer adicionar mais sabores?',
+      moreYes: 'Sim, mais sabores',
+      moreNo: 'Não, só esse sabor',
+      flavorsTitle: 'Escolha os outros sabores',
+      flavorsHelp: 'Escolha até {max} no total',
+      continueLabel: 'Continuar',
+      back: 'Voltar',
+      sodaTitle: 'Esse tamanho vem com refrigerante grátis! Qual você quer?',
+      included: 'Grátis',
       addPizza: 'Adicionar pizza ao carrinho',
     },
     notices: {
@@ -116,9 +124,17 @@ export const translations = {
       gigante: 'Giant 12 slices (up to 3 traditional flavors + Free Soda)',
       crustNotice: 'All pizzas include free stuffed crust (Cheddar, Catupiry, Chocolate or Dulce de Leche).',
     },
-    pizzaBuilder: {
-      chooseUpTo: 'Choose up to {max} flavors',
-      selectedCount: '{count} of {max} flavors selected',
+    pizzaWizard: {
+      sizeTitle: 'What size?',
+      moreTitle: 'Want to add more flavors?',
+      moreYes: 'Yes, more flavors',
+      moreNo: 'No, just this one',
+      flavorsTitle: 'Choose the other flavors',
+      flavorsHelp: 'Choose up to {max} total',
+      continueLabel: 'Continue',
+      back: 'Back',
+      sodaTitle: 'This size comes with a free soda! Which one do you want?',
+      included: 'Free',
       addPizza: 'Add pizza to cart',
     },
     notices: {
