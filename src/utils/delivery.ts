@@ -1,10 +1,21 @@
 // Calcula a taxa de entrega com base na distância de carro até o endereço do cliente,
-// usando a Geocoding Autocomplete API + Matrix API da OpenRouteService (openrouteservice.org).
+// usando a Autocomplete API + Matrix API da LocationIQ (locationiq.com).
 
-const ORS_API_KEY = import.meta.env.VITE_ORS_API_KEY as string | undefined
+const LOCATIONIQ_API_KEY = import.meta.env.VITE_LOCATIONIQ_API_KEY as string | undefined
 
 // 6339 Rising Sun Ave, Philadelphia, PA 19111 (fixo — evita geocodificar a origem a cada cálculo)
 const PIZZERIA_COORDS: [number, number] = [-75.0957232, 40.0491468]
+
+// Caixa de ~35 milhas ao redor da pizzaria — mantém a busca de endereço local (evita
+// resultados de outros estados) sem cortar nenhum endereço dentro do raio de entrega (15mi).
+const SEARCH_BOX = {
+  left: PIZZERIA_COORDS[0] - 0.5,
+  top: PIZZERIA_COORDS[1] + 0.5,
+  right: PIZZERIA_COORDS[0] + 0.5,
+  bottom: PIZZERIA_COORDS[1] - 0.5,
+}
+
+const METERS_PER_MILE = 1609.344
 
 const NJ_TOLL_FEE = 4
 const MAX_DELIVERY_MILES = 15
@@ -29,11 +40,6 @@ function feeForDistance(distanceMi: number): number | undefined {
   return 12 + extraMiles
 }
 
-// Camadas de geocodificação precisas o suficiente pra confiar na distância calculada.
-// Endereços que só batem no nível de cidade/bairro (ex: "Philadelphia") caem num ponto central
-// da cidade, o que daria uma distância errada sem avisar o cliente — por isso são filtrados aqui.
-const ACCEPTABLE_LAYERS = new Set(['address', 'venue', 'street'])
-
 export interface AddressSuggestion {
   label: string
   coords: [number, number]
@@ -45,28 +51,29 @@ export type AddressSearchResult =
   | { status: 'unavailable' }
 
 // Busca sugestões de endereço conforme a pessoa digita (autocompletar, igual ao Google).
-// focus.point centraliza a busca perto da pizzaria — sem isso, "123 Main St" pode trazer
-// resultados de qualquer estado dos EUA na frente do endereço local que a pessoa quer.
+// viewbox+bounded=1 restringe a busca a uma caixa perto da pizzaria — sem isso, "123 Main St"
+// pode trazer resultados de qualquer estado dos EUA na frente do endereço local que a pessoa quer.
+// Só aceita resultados com número de casa (house_number) — evita cair num ponto central de
+// cidade/bairro, que daria uma distância errada sem avisar o cliente.
 export async function searchAddressSuggestions(text: string): Promise<AddressSearchResult> {
-  if (!ORS_API_KEY) return { status: 'unavailable' }
+  if (!LOCATIONIQ_API_KEY) return { status: 'unavailable' }
   if (text.trim().length < 4) return { status: 'ok', suggestions: [] }
 
   try {
-    const [lon, lat] = PIZZERIA_COORDS
+    const { left, top, right, bottom } = SEARCH_BOX
     const res = await fetch(
-      `https://api.openrouteservice.org/geocode/autocomplete?api_key=${ORS_API_KEY}&text=${encodeURIComponent(text)}&boundary.country=US&size=6&focus.point.lat=${lat}&focus.point.lon=${lon}`,
+      `https://api.locationiq.com/v1/autocomplete?key=${LOCATIONIQ_API_KEY}&q=${encodeURIComponent(text)}&countrycodes=us&limit=6&viewbox=${left},${top},${right},${bottom}&bounded=1&format=json`,
     )
-    // 403/429/503 aqui normalmente é cota diária gratuita esgotada, não "endereço não existe".
     if (!res.ok) return { status: 'unavailable' }
     const data = await res.json()
-    const features: any[] = data.features ?? []
+    if (!Array.isArray(data)) return { status: 'ok', suggestions: [] }
 
-    const suggestions = features
-      .filter((f) => ACCEPTABLE_LAYERS.has(f.properties?.layer))
-      .map((f) => ({
-        label: f.properties.label as string,
-        coords: f.geometry.coordinates as [number, number],
-        isNewJersey: f.properties?.region_a === 'NJ',
+    const suggestions = data
+      .filter((f: any) => f.address?.house_number)
+      .map((f: any) => ({
+        label: f.display_name as string,
+        coords: [Number(f.lon), Number(f.lat)] as [number, number],
+        isNewJersey: f.address?.state === 'New Jersey',
       }))
     return { status: 'ok', suggestions }
   } catch {
@@ -89,25 +96,19 @@ export type DeliveryResult =
 
 // Calcula a taxa a partir de um endereço já escolhido na lista de sugestões (coordenadas conhecidas).
 export async function calculateDeliveryFee(suggestion: AddressSuggestion): Promise<DeliveryResult> {
-  if (!ORS_API_KEY) return { status: 'not_configured' }
+  if (!LOCATIONIQ_API_KEY) return { status: 'not_configured' }
 
   try {
-    const matrixRes = await fetch('https://api.openrouteservice.org/v2/matrix/driving-car', {
-      method: 'POST',
-      headers: {
-        Authorization: ORS_API_KEY,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        locations: [PIZZERIA_COORDS, suggestion.coords],
-        metrics: ['distance'],
-        units: 'mi',
-      }),
-    })
-    if (!matrixRes.ok) return { status: 'error' }
-    const matrixData = await matrixRes.json()
-    const distanceMi: number | undefined = matrixData.distances?.[0]?.[1]
-    if (distanceMi == null) return { status: 'error' }
+    const [originLon, originLat] = PIZZERIA_COORDS
+    const [destLon, destLat] = suggestion.coords
+    const res = await fetch(
+      `https://us1.locationiq.com/v1/matrix/driving/${originLon},${originLat};${destLon},${destLat}?key=${LOCATIONIQ_API_KEY}&annotations=distance`,
+    )
+    if (!res.ok) return { status: 'error' }
+    const data = await res.json()
+    const distanceMeters: number | undefined = data.distances?.[0]?.[1]
+    if (distanceMeters == null) return { status: 'error' }
+    const distanceMi = distanceMeters / METERS_PER_MILE
 
     const baseFee = feeForDistance(distanceMi)
     if (baseFee === undefined) return { status: 'out_of_range' }
