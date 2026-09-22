@@ -233,7 +233,11 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
                 </button>
                 <button
                   type="button"
-                  onClick={() => setMode('delivery')}
+                  onClick={() => {
+                    setMode('delivery')
+                    // Cartão só é aceito na retirada — sem maquininha pro entregador.
+                    if (paymentMethod === 'card') setPaymentMethod(null)
+                  }}
                   className={`flex-1 rounded-lg py-2 text-xs font-bold transition-colors ${
                     mode === 'delivery' ? 'bg-orange-500 text-white' : 'bg-white/5 text-white/60 hover:bg-white/10'
                   }`}
@@ -246,7 +250,10 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
             <div className="mb-3">
               <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-white/50">{t.paymentTitle}</p>
               <div className="grid grid-cols-2 gap-2">
-                {(['cash', 'zelle', 'venmo', 'card'] as PaymentMethod[]).map((method) => (
+                {(mode === 'delivery'
+                  ? (['cash', 'zelle', 'venmo'] as PaymentMethod[])
+                  : (['cash', 'zelle', 'venmo', 'card'] as PaymentMethod[])
+                ).map((method) => (
                   <button
                     key={method}
                     type="button"
