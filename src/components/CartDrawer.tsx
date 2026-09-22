@@ -3,7 +3,13 @@ import { useCart } from '../context/CartContext'
 import { translations, type Lang } from '../utils/translations'
 import { calculateTax, formatCurrency, parsePriceLabel } from '../utils/price'
 import { buildOrderMessage, buildWhatsAppUrl, type OrderDelivery, type PaymentMethod } from '../utils/whatsapp'
-import { calculateDeliveryFee, searchAddressSuggestions, type AddressSuggestion, type DeliveryQuote } from '../utils/delivery'
+import {
+  calculateDeliveryFee,
+  searchAddressSuggestions,
+  staticMapUrl,
+  type AddressSuggestion,
+  type DeliveryQuote,
+} from '../utils/delivery'
 import { ConfirmDialog } from './ConfirmDialog'
 
 type DeliveryErrorStatus = 'out_of_range' | 'error'
@@ -313,18 +319,30 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
                   <p className="text-[11px] text-red-400">{searchUnavailable ? td.searchUnavailable : td.notFound}</p>
                 )}
 
-                {quote && !addressStale && (
-                  <div className="rounded-lg bg-white/5 p-2.5 text-xs">
-                    <div className="flex items-center justify-between">
-                      <span className="text-white/60">{td.distanceLabel}</span>
-                      <span className="font-semibold text-white">{quote.distanceMi.toFixed(1)} mi</span>
+                {quote && !addressStale && selectedSuggestion && (
+                  <>
+                    <div className="overflow-hidden rounded-lg ring-1 ring-white/10">
+                      <img
+                        src={staticMapUrl(selectedSuggestion.coords) ?? ''}
+                        alt={td.mapAlt}
+                        className="block h-auto w-full"
+                        loading="lazy"
+                      />
+                      <p className="bg-white/5 px-2.5 py-1.5 text-[11px] text-white/60">{td.mapConfirm}</p>
                     </div>
-                    <div className="mt-1 flex items-center justify-between">
-                      <span className="text-white/60">{td.feeLabel}</span>
-                      <span className="font-semibold text-orange-300">{formatCurrency(quote.fee)}</span>
+
+                    <div className="rounded-lg bg-white/5 p-2.5 text-xs">
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/60">{td.distanceLabel}</span>
+                        <span className="font-semibold text-white">{quote.distanceMi.toFixed(1)} mi</span>
+                      </div>
+                      <div className="mt-1 flex items-center justify-between">
+                        <span className="text-white/60">{td.feeLabel}</span>
+                        <span className="font-semibold text-orange-300">{formatCurrency(quote.fee)}</span>
+                      </div>
+                      {quote.isNewJersey && <p className="mt-1.5 text-[11px] text-white/50">{td.njToll}</p>}
                     </div>
-                    {quote.isNewJersey && <p className="mt-1.5 text-[11px] text-white/50">{td.njToll}</p>}
-                  </div>
+                  </>
                 )}
 
                 {deliveryError && (

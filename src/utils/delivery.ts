@@ -46,9 +46,24 @@ export interface AddressSuggestion {
   isNewJersey: boolean
 }
 
+// URL de um mapinha estático com um pin no endereço escolhido — mostra visualmente pra pessoa
+// confirmar que é o lugar certo antes de finalizar o pedido.
+export function staticMapUrl(coords: [number, number], widthPx = 500, heightPx = 220): string | null {
+  if (!LOCATIONIQ_API_KEY) return null
+  const [lon, lat] = coords
+  return `https://maps.locationiq.com/v3/staticmap?key=${LOCATIONIQ_API_KEY}&center=${lat},${lon}&zoom=16&size=${widthPx}x${heightPx}&format=png&markers=icon:large-red-cutout|${lat},${lon}`
+}
+
 export type AddressSearchResult =
   | { status: 'ok'; suggestions: AddressSuggestion[] }
   | { status: 'unavailable' }
+
+// Extrai o número inicial que a pessoa digitou (ex: "229" em "229 Mecray Ln") — usado pra
+// não "sumir" o número da casa quando o resultado só tem a rua (sem house_number no mapa).
+function extractLeadingNumber(text: string): string | null {
+  const match = text.trim().match(/^(\d+[a-zA-Z]?)\b/)
+  return match ? match[1] : null
+}
 
 // Busca sugestões de endereço conforme a pessoa digita (autocompletar, igual ao Google).
 // viewbox+bounded=1 restringe a busca a uma caixa perto da pizzaria — sem isso, "123 Main St"
@@ -66,17 +81,27 @@ export async function searchAddressSuggestions(text: string): Promise<AddressSea
     const res = await fetch(
       `https://api.locationiq.com/v1/autocomplete?key=${LOCATIONIQ_API_KEY}&q=${encodeURIComponent(text)}&countrycodes=us&limit=6&viewbox=${left},${top},${right},${bottom}&bounded=1&format=json`,
     )
+    // 404 "Unable to geocode" é a API dizendo "não achei nada pra esse texto exato" — não é
+    // fora do ar. Só trata como indisponível erros de verdade (cota/limite, servidor caiu etc).
+    if (res.status === 404) return { status: 'ok', suggestions: [] }
     if (!res.ok) return { status: 'unavailable' }
     const data = await res.json()
     if (!Array.isArray(data)) return { status: 'ok', suggestions: [] }
 
+    const leadingNumber = extractLeadingNumber(text)
+
     const suggestions = data
       .filter((f: any) => f.address?.house_number || (f.class === 'highway' && (f.address?.road || f.address?.name)))
-      .map((f: any) => ({
-        label: f.display_name as string,
-        coords: [Number(f.lon), Number(f.lat)] as [number, number],
-        isNewJersey: f.address?.state === 'New Jersey',
-      }))
+      .map((f: any) => {
+        // Sem house_number no mapa (comum em ruas de NJ) — mantém o número que a pessoa
+        // digitou na frente do nome, pra não sumir com ele na tela.
+        const label = f.address?.house_number || !leadingNumber ? f.display_name : `${leadingNumber} ${f.display_name}`
+        return {
+          label: label as string,
+          coords: [Number(f.lon), Number(f.lat)] as [number, number],
+          isNewJersey: f.address?.state === 'New Jersey',
+        }
+      })
     return { status: 'ok', suggestions }
   } catch {
     return { status: 'unavailable' }
