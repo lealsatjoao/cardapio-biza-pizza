@@ -365,6 +365,11 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
                       <div>
                         <p className="text-sm font-semibold text-white">{item.name}</p>
                         {item.note && <p className="whitespace-pre-line text-xs text-white/60">{item.note}</p>}
+                        {!!item.extraAddonsTotal && (
+                          <p className="mt-0.5 text-xs font-semibold text-orange-300/80">
+                            {t.addonsValue.replace('{v}', formatCurrency(item.extraAddonsTotal))}
+                          </p>
+                        )}
                         {item.observation && (
                           <p className="mt-0.5 text-xs italic text-amber-300/80">"{item.observation}"</p>
                         )}
