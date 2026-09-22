@@ -74,12 +74,16 @@ Textos fixos da interface (nome das abas, avisos, "Tamanhos", etc.) ficam em `sr
 ---
 
 ## 6. Pendências Conhecidas
-- **Preços de Bebidas em aberto:** Sucos (Polpa Natural e Caixa 1L) e Água Mineral 500ml ainda não têm preço definido pelo João — aguardando valores para adicionar no mesmo padrão dos refrigerantes.
+- **Preço do Suco de Caixa 1L em aberto:** ainda não definido pelo João.
 - **Foto de Porções com marca d'água:** a imagem usada no ícone da aba Porções (`public/icons/porcao.png`) veio de um banco de imagens com marca d'água de preview, usada "por enquanto" a pedido do João. Trocar quando houver uma versão licenciada/limpa.
+- **Fotos apagadas localmente (não commitado):** `public/bg-biza.jpg`, `public/favicon.jpg`, `public/icons/esfiha.png`, `public/icons/pastel.png` e `public/icons/porcao.png` sumiram da pasta local (não estão mais no disco) mas ainda existem no último commit/site publicado. Precisa investigar com o João se foi intencional antes de restaurar ou remover de vez.
 
 ---
 
 ## 7. Histórico de Tarefas
+### 22/09/2026
+- Preços de bebidas definidos: Refrigerante 2L diferenciado por sabor ($6,00 Fanta/Sprite/Pepsi Zero, $7,00 Guaraná/Coca-Cola/versões Zero), Lata ajustada para $3,00 único para todos os sabores (removida a exceção antiga do Guaraná), Água Mineral $2,00, novo item Água com Gás $3,00, Suco de Polpa Natural $6,00. Suco de Caixa 1L segue sem preço.
+
 ### 15/09/2026
 - Projeto inicializado, repositório GitHub criado (depois tornado público para permitir GitHub Pages no plano gratuito).
 - Página inicial simples publicada, depois substituída pela aplicação completa (React + Vite + Tailwind).

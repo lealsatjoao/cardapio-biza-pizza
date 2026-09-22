@@ -1,5 +1,14 @@
 import { useState } from 'react'
-import { aguaMineral, localizePrice, refrigerantes, sucosCaixa, sucosNaturais, type Bebida } from '../data/menu'
+import {
+  aguaComGas,
+  aguaMineral,
+  localizePrice,
+  refrigerantes,
+  sucoNaturalPreco,
+  sucosCaixa,
+  sucosNaturais,
+  type Bebida,
+} from '../data/menu'
 import { translations, type Lang } from '../utils/translations'
 import { SectionCard } from './SectionCard'
 import { Tabs } from './Tabs'
@@ -68,6 +77,19 @@ export function BebidasSection({ lang }: { lang: Lang }) {
                 </div>
               )}
             </div>
+
+            {soda2L.excecoes && (
+              <div className="mt-3 flex flex-col gap-1.5 border-t border-white/10 pt-3">
+                {soda2L.excecoes.map((ex) => (
+                  <div key={ex.nome} className="flex items-center justify-between gap-3">
+                    <span className="text-sm font-semibold text-white">{flavorName(ex.nome)}</span>
+                    <span className="whitespace-nowrap rounded-full bg-amber-500/90 px-2.5 py-1 text-xs font-bold text-white">
+                      {localizePrice(ex.preco, lang)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </SectionCard>
 
           <SectionCard>
@@ -108,7 +130,12 @@ export function BebidasSection({ lang }: { lang: Lang }) {
       {sub === 'sucos' && (
         <>
           <SectionCard>
-            <h3 className="mb-1 text-sm font-bold uppercase tracking-wide text-orange-400">{t.bebidas.juiceNatural}</h3>
+            <div className="mb-1 flex items-center justify-between gap-3">
+              <h3 className="text-sm font-bold uppercase tracking-wide text-orange-400">{t.bebidas.juiceNatural}</h3>
+              <span className="whitespace-nowrap rounded-full bg-orange-500/90 px-2.5 py-1 text-xs font-bold text-white">
+                {localizePrice(sucoNaturalPreco, lang)}
+              </span>
+            </div>
             <p className="mb-3 text-xs text-white/60">{t.bebidas.juiceNaturalNotice}</p>
             <div>
               {sucosNaturais.map((item) => (
@@ -136,7 +163,18 @@ export function BebidasSection({ lang }: { lang: Lang }) {
 
       {sub === 'agua' && (
         <SectionCard>
-          <p className="text-sm font-semibold text-white">{bebidaNome(aguaMineral, lang)}</p>
+          <div className="flex items-center justify-between gap-3 border-b border-white/10 py-2">
+            <p className="text-sm font-semibold text-white">{bebidaNome(aguaMineral, lang)}</p>
+            <span className="whitespace-nowrap rounded-full bg-orange-500/90 px-2.5 py-1 text-xs font-bold text-white">
+              {localizePrice(aguaMineral.preco!, lang)}
+            </span>
+          </div>
+          <div className="flex items-center justify-between gap-3 py-2">
+            <p className="text-sm font-semibold text-white">{bebidaNome(aguaComGas, lang)}</p>
+            <span className="whitespace-nowrap rounded-full bg-orange-500/90 px-2.5 py-1 text-xs font-bold text-white">
+              {localizePrice(aguaComGas.preco!, lang)}
+            </span>
+          </div>
         </SectionCard>
       )}
     </div>

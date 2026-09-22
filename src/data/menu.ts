@@ -322,6 +322,7 @@ export const massas: PorcaoItem[] = [
 export interface Bebida {
   nome: string
   nomeEn?: string
+  preco?: string
 }
 
 export interface RefrigeranteTamanho {
@@ -335,9 +336,15 @@ export interface RefrigeranteTamanho {
 export const refrigerantes: RefrigeranteTamanho[] = [
   {
     key: '2l',
-    preco: '$7,00 +Tax',
-    sabores: ['Guaraná', 'Coca-Cola', 'Fanta', 'Sprite'],
-    saboresZero: ['Coca-Cola Zero', 'Guaraná Zero', 'Pepsi Zero'],
+    preco: '$6,00 +Tax',
+    sabores: ['Fanta', 'Sprite'],
+    saboresZero: ['Pepsi Zero'],
+    excecoes: [
+      { nome: 'Guaraná Antarctica', preco: '$7,00 +Tax' },
+      { nome: 'Coca-Cola', preco: '$7,00 +Tax' },
+      { nome: 'Guaraná Antarctica Zero', preco: '$7,00 +Tax' },
+      { nome: 'Coca-Cola Zero', preco: '$7,00 +Tax' },
+    ],
   },
   {
     key: '600ml',
@@ -346,14 +353,12 @@ export const refrigerantes: RefrigeranteTamanho[] = [
   },
   {
     key: 'lata',
-    preco: '$2,00 +Tax',
-    sabores: ['Coca-Cola', 'Coca-Cola Zero', 'Fanta', 'Sprite', 'Pepsi Zero'],
-    excecoes: [
-      { nome: 'Guaraná Antarctica', preco: '$3,00 +Tax' },
-      { nome: 'Guaraná Antarctica Zero', preco: '$3,00 +Tax' },
-    ],
+    preco: '$3,00 +Tax',
+    sabores: ['Coca-Cola', 'Coca-Cola Zero', 'Fanta', 'Sprite', 'Pepsi Zero', 'Guaraná Antarctica', 'Guaraná Antarctica Zero'],
   },
 ]
+
+export const sucoNaturalPreco = '$6,00 +Tax'
 
 export const sucosNaturais: Bebida[] = [
   { nome: 'Maracujá', nomeEn: 'Passion Fruit' },
@@ -372,4 +377,11 @@ export const sucosCaixa: Bebida[] = [
 export const aguaMineral: Bebida = {
   nome: 'Água Mineral Garrafa (500 ml)',
   nomeEn: 'Bottled Spring Water (500ml)',
+  preco: '$2,00 +Tax',
+}
+
+export const aguaComGas: Bebida = {
+  nome: 'Água com Gás (500 ml)',
+  nomeEn: 'Sparkling Water (500ml)',
+  preco: '$3,00 +Tax',
 }
