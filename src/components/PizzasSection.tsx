@@ -1,5 +1,12 @@
 import { useState } from 'react'
-import { pizzasDoces, pizzasSalgadasEspeciais, pizzasSalgadasTradicionais, type MenuItem } from '../data/menu'
+import {
+  pizzaSizePrices,
+  pizzasDoces,
+  pizzasSalgadasEspeciais,
+  pizzasSalgadasTradicionais,
+  localizePrice,
+  type MenuItem,
+} from '../data/menu'
 import { translations, type Lang } from '../utils/translations'
 import { PizzaFlavorRow } from './PizzaFlavorRow'
 import { PizzaOrderWizard } from './PizzaOrderWizard'
@@ -16,11 +23,31 @@ export function PizzasSection({ lang }: { lang: Lang }) {
     { id: 'doces', label: t.subtabs.doces },
   ]
 
+  const sizes = [
+    { key: 'broto', label: t.sizes.broto, preco: pizzaSizePrices.broto },
+    { key: 'grande', label: t.sizes.grande, preco: pizzaSizePrices.grande },
+    { key: 'gigante', label: t.sizes.gigante, preco: pizzaSizePrices.gigante },
+  ]
+
   const salgadas = [...pizzasSalgadasTradicionais, ...pizzasSalgadasEspeciais]
   const candidates = sub === 'doces' ? pizzasDoces : salgadas
 
   return (
     <div className="flex flex-col gap-4">
+      <SectionCard>
+        <GroupTitle>{t.sizes.title}</GroupTitle>
+        <div className="flex flex-col gap-2">
+          {sizes.map((s) => (
+            <div key={s.key} className="flex items-center justify-between gap-3 rounded-xl bg-white/5 px-3 py-2">
+              <p className="text-sm font-bold text-white">{s.label}</p>
+              <span className="whitespace-nowrap rounded-full bg-orange-500/90 px-2.5 py-1 text-xs font-bold text-white">
+                {localizePrice(s.preco, lang)}
+              </span>
+            </div>
+          ))}
+        </div>
+      </SectionCard>
+
       <Notice>{t.sizes.crustNotice}</Notice>
 
       <Tabs options={SUBTABS} active={sub} onChange={setSub} variant="secondary" />

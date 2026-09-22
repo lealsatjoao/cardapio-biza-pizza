@@ -1,5 +1,13 @@
 import { useState } from 'react'
-import { itemName, localizePrice, pizzaSizeConfig, pizzaSizePrices, refrigerantes, type MenuItem } from '../data/menu'
+import {
+  itemDescription,
+  itemName,
+  localizePrice,
+  pizzaSizeConfig,
+  pizzaSizePrices,
+  refrigerantes,
+  type MenuItem,
+} from '../data/menu'
 import { useCart } from '../context/CartContext'
 import { formatCurrency, parsePriceLabel } from '../utils/price'
 import { translations, type Lang } from '../utils/translations'
@@ -155,19 +163,23 @@ export function PizzaOrderWizard({
                 .map((item) => {
                   const isSelected = selected.some((f) => f.numero === item.numero)
                   const disabled = !isSelected && selected.length >= maxSabores
+                  const descricao = itemDescription(item, lang)
                   return (
                     <button
                       key={item.numero}
                       type="button"
                       onClick={() => toggleFlavor(item)}
                       disabled={disabled}
-                      className={`flex w-full items-center justify-between gap-2.5 border-b border-white/10 py-2 text-left last:border-0 ${
+                      className={`flex w-full items-start justify-between gap-2.5 border-b border-white/10 py-2 text-left last:border-0 ${
                         disabled ? 'opacity-40' : ''
                       }`}
                     >
-                      <span className="text-sm font-semibold text-white">{itemName(item, lang)}</span>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-white">{itemName(item, lang)}</p>
+                        {descricao && <p className="mt-0.5 text-xs leading-snug text-white/60">{descricao}</p>}
+                      </div>
                       <span
-                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
+                        className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
                           isSelected ? 'bg-orange-500 text-white' : 'bg-white/10 text-transparent'
                         }`}
                       >
