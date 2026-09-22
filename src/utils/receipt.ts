@@ -3,6 +3,9 @@ import type { DeliveryQuote } from './delivery'
 import { calculateTax, parsePriceLabel } from './price'
 import { sortForReceipt } from './cartOrder'
 
+// Mesmo número pro telefone da loja, Zelle e WhatsApp (confirmado pelo João, 23/09/2026).
+export const STORE_PHONE = '2677487163'
+
 export type OrderDelivery = { mode: 'pickup' } | { mode: 'delivery'; quote: DeliveryQuote; aptUnit?: string }
 
 export type PaymentMethod = 'cash' | 'zelle' | 'venmo' | 'card'
@@ -81,7 +84,7 @@ export function buildReceipt(
 
   lines.push('BIZA PIZZAS')
   lines.push('NORTH EAST')
-  lines.push('2677487163')
+  lines.push(STORE_PHONE)
   lines.push('')
   lines.push(formatOrderDateTime())
   lines.push('Atendente: SITE')

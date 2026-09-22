@@ -3,7 +3,7 @@ import { useCart } from '../context/CartContext'
 import { isEsfihaFlavorName } from '../data/menu'
 import { translations, type Lang } from '../utils/translations'
 import { calculateTax, formatCurrency, parsePriceLabel } from '../utils/price'
-import { buildReceipt, type OrderDelivery, type PaymentMethod } from '../utils/receipt'
+import { buildReceipt, STORE_PHONE, type OrderDelivery, type PaymentMethod } from '../utils/receipt'
 import { nextControleNumber } from '../utils/orderCounter'
 import { sortForReceipt } from '../utils/cartOrder'
 import { loadSavedCustomer, saveCustomer, type SavedCustomerInfo } from '../utils/savedCustomer'
@@ -38,7 +38,11 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null)
   const [changeFor, setChangeFor] = useState('')
   const [sending, setSending] = useState(false)
-  const [confirmedOrder, setConfirmedOrder] = useState<{ controle: number | null; name: string } | null>(null)
+  const [confirmedOrder, setConfirmedOrder] = useState<{
+    controle: number | null
+    name: string
+    paymentMethod: PaymentMethod
+  } | null>(null)
   const [submitError, setSubmitError] = useState(false)
 
   const [mode, setMode] = useState<'pickup' | 'delivery'>('pickup')
@@ -267,7 +271,7 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
     saveCustomer(infoToSave)
     setSavedCustomer(infoToSave)
     saveCustomerRecord(customerPhone, infoToSave)
-    setConfirmedOrder({ controle, name: customerName.trim() })
+    setConfirmedOrder({ controle, name: customerName.trim(), paymentMethod })
     clear()
     setSending(false)
   }
@@ -309,6 +313,20 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
                 </>
               )}
             </p>
+            {confirmedOrder.paymentMethod === 'zelle' && (
+              <div className="w-full rounded-xl bg-white/5 p-4 ring-1 ring-white/10">
+                <p className="text-sm font-semibold text-white">{t.zelleNumber.replace('{n}', STORE_PHONE)}</p>
+                <p className="mt-1 text-xs text-white/70">{t.zelleInstructions}</p>
+                <a
+                  href={`https://wa.me/1${STORE_PHONE}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-3 block w-full rounded-lg bg-green-600 py-2 text-center text-xs font-bold text-white hover:bg-green-500"
+                >
+                  {t.zelleWhatsappLink}
+                </a>
+              </div>
+            )}
             <button
               type="button"
               onClick={() => {
