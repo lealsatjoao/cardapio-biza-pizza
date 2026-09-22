@@ -5,9 +5,10 @@ export interface CartItem {
   observation?: string
   priceLabel?: string
   qty: number
-  /** Marca refrigerantes avulsos (sempre vão por último na comanda/notinha) e esfihas
-   * individuais (usado pra checar a venda mínima de 5 no checkout). */
-  category?: 'refrigerante' | 'esfiha'
+  /** Marca refrigerantes avulsos (sempre vão por último na comanda/notinha), esfihas
+   * individuais (usado pra checar a venda mínima de 5 no checkout) e pastéis (mostra a
+   * lista de adicionais no modal de adicionar ao carrinho). */
+  category?: 'refrigerante' | 'esfiha' | 'pastel'
   /** Nome que aparece na notinha do WhatsApp no lugar do sabor (ex: "Pastel 24") — a loja
    * registra esses itens por número do cardápio físico, não pelo nome do recheio. */
   receiptLabel?: string

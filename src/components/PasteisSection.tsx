@@ -32,6 +32,7 @@ export function PasteisSection({ lang }: { lang: Lang }) {
                   lang={lang}
                   priceLabel={localizePrice(pasteisPrecos.tradicionais, lang)}
                   numberedAs="Pastel"
+                  cartCategory="pastel"
                 />
               ))}
             </div>
@@ -47,6 +48,7 @@ export function PasteisSection({ lang }: { lang: Lang }) {
                   lang={lang}
                   priceLabel={localizePrice(pasteisPrecos.especiais, lang)}
                   numberedAs="Pastel"
+                  cartCategory="pastel"
                 />
               ))}
             </div>
@@ -65,6 +67,7 @@ export function PasteisSection({ lang }: { lang: Lang }) {
                 lang={lang}
                 priceLabel={localizePrice(pasteisPrecos.doces, lang)}
                 numberedAs="Pastel"
+                cartCategory="pastel"
               />
             ))}
           </div>

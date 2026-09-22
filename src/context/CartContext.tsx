@@ -32,7 +32,13 @@ interface CartContextValue {
   // Fluxo de adicionar: abre um modal para escolher quantidade/observação antes de confirmar.
   promptItem: AddCartInput | null
   requestAdd: (item: AddCartInput) => void
-  confirmAdd: (qty: number, observation: string) => void
+  // "override" deixa o modal (ex: adicionais do pastel, $1 cada) ajustar nota/preço/total
+  // adicional do item já pedido via requestAdd, sem mudar a assinatura pra quem não usa isso.
+  confirmAdd: (
+    qty: number,
+    observation: string,
+    override?: { note?: string; priceLabel?: string; extraAddonsTotal?: number },
+  ) => void
   cancelAdd: () => void
   // Feedback rápido (toast) após adicionar.
   toastMessage: string | null
@@ -72,10 +78,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const requestAdd = (item: AddCartInput) => setPromptItem(item)
   const cancelAdd = () => setPromptItem(null)
 
-  const confirmAdd = (qty: number, observation: string) => {
+  const confirmAdd = (
+    qty: number,
+    observation: string,
+    override?: { note?: string; priceLabel?: string; extraAddonsTotal?: number },
+  ) => {
     if (!promptItem) return
     const trimmedObs = observation.trim() || undefined
-    const input = { ...promptItem, observation: trimmedObs }
+    const input = {
+      ...promptItem,
+      ...(override?.note !== undefined ? { note: override.note } : {}),
+      ...(override?.priceLabel !== undefined ? { priceLabel: override.priceLabel } : {}),
+      ...(override?.extraAddonsTotal !== undefined ? { extraAddonsTotal: override.extraAddonsTotal } : {}),
+      observation: trimmedObs,
+    }
     const safeQty = Math.max(1, qty)
 
     setItems((prev) => {
