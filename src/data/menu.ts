@@ -109,6 +109,14 @@ export const pizzaSizePrices = {
   gigante: '$40,00 +Tax',
 }
 
+// Fatias e limite de sabores por tamanho — usado pra dividir o pedaço/sabor e
+// calcular o adicional (ex: $1,00 por fatia) só na fração do sabor escolhido.
+export const pizzaSizeConfig = {
+  broto: { fatias: 6, maxSabores: 2 },
+  grande: { fatias: 8, maxSabores: 2 },
+  gigante: { fatias: 12, maxSabores: 3 },
+}
+
 export const pizzasSalgadasTradicionais: MenuItem[] = [
   { numero: 1, nome: 'A Moda do Pizzaiolo', descricao: 'Milho, ervilha, pimentão e calabresa.', descricaoEn: 'Corn, peas, bell pepper and Brazilian sausage.' },
   { numero: 2, nome: 'Atum', descricao: 'Atum e cebola.', descricaoEn: 'Tuna and onion.' },

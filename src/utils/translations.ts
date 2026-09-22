@@ -24,6 +24,11 @@ export const translations = {
       crustNotice:
         'Todas as pizzas acompanham borda recheada inclusa (Cheddar, Catupiry, Chocolate ou Doce de Leite).',
     },
+    pizzaBuilder: {
+      chooseUpTo: 'Escolha até {max} sabores',
+      selectedCount: '{count} de {max} sabores escolhidos',
+      addPizza: 'Adicionar pizza ao carrinho',
+    },
     notices: {
       esfihaMin: 'Venda mínima de 5 esfihas individuais, podendo ser uma de cada sabor.',
       pastelFresh:
@@ -110,6 +115,11 @@ export const translations = {
       grande: 'Large 8 slices (up to 2 traditional flavors)',
       gigante: 'Giant 12 slices (up to 3 traditional flavors + Free Soda)',
       crustNotice: 'All pizzas include free stuffed crust (Cheddar, Catupiry, Chocolate or Dulce de Leche).',
+    },
+    pizzaBuilder: {
+      chooseUpTo: 'Choose up to {max} flavors',
+      selectedCount: '{count} of {max} flavors selected',
+      addPizza: 'Add pizza to cart',
     },
     notices: {
       esfihaMin: 'Minimum order of 5 individual esfihas, can be one of each flavor.',
