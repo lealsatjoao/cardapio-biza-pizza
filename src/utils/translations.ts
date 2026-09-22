@@ -98,6 +98,8 @@ export const translations = {
       cartFabLabel: 'Ver carrinho',
       customerName: 'Seu nome',
       customerNamePlaceholder: 'Digite seu nome',
+      customerPhone: 'Seu telefone',
+      customerPhonePlaceholder: 'Ex: (215) 555-0123',
       paymentTitle: 'Forma de pagamento',
       paymentCash: 'Dinheiro',
       paymentZelle: 'Zelle',
@@ -105,6 +107,7 @@ export const translations = {
       paymentCard: 'Cartão',
       changeFor: 'Precisa de troco? Para quanto?',
       changeForPlaceholder: 'Ex: $50,00',
+      sending: 'Enviando...',
     },
     delivery: {
       title: 'Como você quer receber?',
@@ -226,6 +229,8 @@ export const translations = {
       cartFabLabel: 'View cart',
       customerName: 'Your name',
       customerNamePlaceholder: 'Enter your name',
+      customerPhone: 'Your phone number',
+      customerPhonePlaceholder: 'E.g.: (215) 555-0123',
       paymentTitle: 'Payment method',
       paymentCash: 'Cash',
       paymentZelle: 'Zelle',
@@ -233,6 +238,7 @@ export const translations = {
       paymentCard: 'Card',
       changeFor: 'Need change? For how much?',
       changeForPlaceholder: 'E.g.: $50.00',
+      sending: 'Sending...',
     },
     delivery: {
       title: 'How would you like to receive your order?',

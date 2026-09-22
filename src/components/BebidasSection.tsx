@@ -73,7 +73,7 @@ export function BebidasSection({ lang }: { lang: Lang }) {
   const sodaLata = refrigerantes.find((r) => r.key === 'lata')!
 
   const addSoda = (flavor: string, sizeLabel: string, priceLabel: string) => {
-    requestAdd({ name: flavor, note: sizeLabel, priceLabel })
+    requestAdd({ name: flavor, note: sizeLabel, priceLabel, category: 'refrigerante' })
   }
 
   return (

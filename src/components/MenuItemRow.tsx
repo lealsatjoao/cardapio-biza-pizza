@@ -8,6 +8,7 @@ export function MenuItemRow({
   lang,
   priceLabel,
   note,
+  numberedAs,
 }: {
   item: MenuItem
   lang: Lang
@@ -15,6 +16,9 @@ export function MenuItemRow({
   priceLabel?: string
   /** Contexto extra salvo no carrinho, ex: tamanho da pizza selecionado. */
   note?: string
+  /** Quando definido (ex: "Pastel"), a notinha do WhatsApp mostra "{numberedAs} {número}" no
+   * lugar do sabor — replica como a loja registra esses itens no caixa físico (por número). */
+  numberedAs?: string
 }) {
   const { requestAdd } = useCart()
   const t = translations[lang].cart
@@ -42,7 +46,14 @@ export function MenuItemRow({
       )}
       <AddButton
         label={t.add}
-        onClick={() => requestAdd({ name: nome, note: resolvedNote, priceLabel: resolvedPrice })}
+        onClick={() =>
+          requestAdd({
+            name: nome,
+            note: resolvedNote,
+            priceLabel: resolvedPrice,
+            receiptLabel: numberedAs ? `${numberedAs} ${item.numero}` : undefined,
+          })
+        }
       />
     </div>
   )

@@ -44,6 +44,9 @@ export interface AddressSuggestion {
   label: string
   coords: [number, number]
   isNewJersey: boolean
+  /** Bairro e cidade/estado de entrega — usados na notinha do WhatsApp (linha embaixo do endereço). */
+  neighbourhood?: string
+  cityLabel?: string
 }
 
 // URL de um mapinha estático com um pin no endereço escolhido — mostra visualmente pra pessoa
@@ -96,10 +99,18 @@ export async function searchAddressSuggestions(text: string): Promise<AddressSea
         // Sem house_number no mapa (comum em ruas de NJ) — mantém o número que a pessoa
         // digitou na frente do nome, pra não sumir com ele na tela.
         const label = f.address?.house_number || !leadingNumber ? f.display_name : `${leadingNumber} ${f.display_name}`
+        const isNewJersey = f.address?.state === 'New Jersey'
+        const neighbourhood: string | undefined =
+          f.address?.neighbourhood || f.address?.suburb || f.address?.quarter || f.address?.city_district
+        const cityLabel: string | undefined = isNewJersey
+          ? 'New Jersey'
+          : f.address?.city || f.address?.town || f.address?.village
         return {
           label: label as string,
           coords: [Number(f.lon), Number(f.lat)] as [number, number],
-          isNewJersey: f.address?.state === 'New Jersey',
+          isNewJersey,
+          neighbourhood,
+          cityLabel,
         }
       })
     return { status: 'ok', suggestions }
@@ -113,6 +124,8 @@ export interface DeliveryQuote {
   distanceMi: number
   isNewJersey: boolean
   fee: number
+  neighbourhood?: string
+  cityLabel?: string
 }
 
 export type DeliveryResult =
@@ -144,7 +157,14 @@ export async function calculateDeliveryFee(suggestion: AddressSuggestion): Promi
 
     return {
       status: 'ok',
-      quote: { address: suggestion.label, distanceMi, isNewJersey: suggestion.isNewJersey, fee },
+      quote: {
+        address: suggestion.label,
+        distanceMi,
+        isNewJersey: suggestion.isNewJersey,
+        fee,
+        neighbourhood: suggestion.neighbourhood,
+        cityLabel: suggestion.cityLabel,
+      },
     }
   } catch {
     return { status: 'error' }

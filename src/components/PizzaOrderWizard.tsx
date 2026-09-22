@@ -75,8 +75,15 @@ export function PizzaOrderWizard({
 
   const finish = (crust: string, sodaFlavor: string | null) => {
     const isPt = lang === 'pt'
-    const pizzaName = isPt ? `Pizza ${shortSizeLabels[size!]}` : `${shortSizeLabels[size!]} Pizza`
-    const parts = [...selected.map((item) => itemName(item, lang)), `${isPt ? 'Borda' : 'Crust'}: ${crust}`]
+    const pizzaName = 'Pizza'
+    const sizeLabel = shortSizeLabels[size!].toUpperCase()
+    const slicesPerFlavor = config ? config.fatias / selected.length : 0
+
+    const parts = [`${isPt ? 'Tamanho' : 'Size'}: ${sizeLabel}`, '', isPt ? 'Fração' : 'Split', '']
+    for (const item of selected) {
+      parts.push(`${slicesPerFlavor} ${itemName(item, lang).toUpperCase()}`)
+    }
+    parts.push(`${isPt ? 'Borda' : 'Crust'}: ${crust}`)
     for (const ad of adicionaisSelecionados) {
       const nome = lang === 'en' ? ad.nomeEn : ad.nome
       const scope = ad.tipo === 'pedaco' && selected.length > 1 ? adicionalScopes[ad.nome] : undefined
@@ -84,7 +91,12 @@ export function PizzaOrderWizard({
       parts.push(`${isPt ? 'Adicional' : 'Extra'}: ${nome} (${scopeLabel})`)
     }
     if (sodaFlavor) parts.push(`${isPt ? 'Refrigerante' : 'Soda'}: ${sodaFlavor}`)
-    requestAdd({ name: pizzaName, note: parts.join('\n'), priceLabel: totalPriceLabel })
+    requestAdd({
+      name: pizzaName,
+      note: parts.join('\n'),
+      priceLabel: totalPriceLabel,
+      extraAddonsTotal: adicionaisTotal || undefined,
+    })
     onClose()
   }
 

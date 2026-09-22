@@ -3,6 +3,8 @@ import { useCart } from '../context/CartContext'
 import { translations, type Lang } from '../utils/translations'
 import { calculateTax, formatCurrency, parsePriceLabel } from '../utils/price'
 import { buildOrderMessage, buildWhatsAppUrl, type OrderDelivery, type PaymentMethod } from '../utils/whatsapp'
+import { nextControleNumber } from '../utils/orderCounter'
+import { sortForReceipt } from '../utils/cartOrder'
 import {
   calculateDeliveryFee,
   searchAddressSuggestions,
@@ -22,8 +24,10 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
   const [confirmClear, setConfirmClear] = useState(false)
 
   const [customerName, setCustomerName] = useState('')
+  const [customerPhone, setCustomerPhone] = useState('')
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null)
   const [changeFor, setChangeFor] = useState('')
+  const [sending, setSending] = useState(false)
 
   const [mode, setMode] = useState<'pickup' | 'delivery'>('pickup')
   const [address, setAddress] = useState('')
@@ -76,7 +80,9 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
   const grandTotal = totalKnown + deliveryFee + taxAmount
   const canSend =
     customerName.trim().length > 0 &&
+    customerPhone.trim().length > 0 &&
     paymentMethod !== null &&
+    !sending &&
     (mode === 'pickup' || (quote !== null && !addressStale))
 
   const pickSuggestion = async (suggestion: AddressSuggestion) => {
@@ -95,14 +101,33 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
     }
   }
 
-  const handleSend = () => {
-    if (!paymentMethod) return
+  const handleSend = async () => {
+    if (!paymentMethod || sending) return
+    setSending(true)
+    // Abre a aba em branco já na hora do clique (gesto do usuário) pra não cair no
+    // bloqueador de pop-up do navegador — só navega pra URL do WhatsApp depois que o
+    // número de Controle chegar (evita "window.open" tardio, que alguns navegadores bloqueiam).
+    const whatsappWindow = window.open('', '_blank')
+    const controle = await nextControleNumber()
     const delivery: OrderDelivery =
       mode === 'delivery' && quote && !addressStale
         ? { mode: 'delivery', quote, aptUnit: aptUnit.trim() || undefined }
         : { mode: 'pickup' }
-    const message = buildOrderMessage(items, lang, customerName.trim(), { method: paymentMethod, changeFor }, delivery)
-    window.open(buildWhatsAppUrl(message), '_blank', 'noopener,noreferrer')
+    const message = buildOrderMessage(
+      items,
+      customerName.trim(),
+      customerPhone.trim(),
+      { method: paymentMethod, changeFor },
+      delivery,
+      controle,
+    )
+    const url = buildWhatsAppUrl(message)
+    if (whatsappWindow) {
+      whatsappWindow.location.href = url
+    } else {
+      window.open(url, '_blank', 'noopener,noreferrer')
+    }
+    setSending(false)
   }
 
   const itemToRemove = items.find((it) => it.id === confirmRemoveId)
@@ -137,7 +162,7 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
             </div>
           ) : (
             <div className="flex flex-col gap-3">
-              {items.map((item) => {
+              {sortForReceipt(items).map((item) => {
                 const unit = parsePriceLabel(item.priceLabel)
                 return (
                   <div key={item.id} className="rounded-xl bg-white/5 p-3 ring-1 ring-white/10">
@@ -257,6 +282,19 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
                 placeholder={t.customerNamePlaceholder}
+                className="w-full rounded-lg bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-orange-400"
+              />
+            </div>
+
+            <div className="mb-3">
+              <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-white/50">
+                {t.customerPhone}
+              </label>
+              <input
+                type="tel"
+                value={customerPhone}
+                onChange={(e) => setCustomerPhone(e.target.value)}
+                placeholder={t.customerPhonePlaceholder}
                 className="w-full rounded-lg bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-orange-400"
               />
             </div>
@@ -390,7 +428,7 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
               disabled={!canSend}
               className="mb-2 w-full rounded-xl bg-green-600 py-2.5 text-sm font-bold text-white shadow-md transition-transform active:scale-95 hover:bg-green-500 disabled:opacity-40 disabled:active:scale-100"
             >
-              {t.sendWhatsapp}
+              {sending ? t.sending : t.sendWhatsapp}
             </button>
             <button
               type="button"

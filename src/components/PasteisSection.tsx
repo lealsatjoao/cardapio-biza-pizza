@@ -26,7 +26,13 @@ export function PasteisSection({ lang }: { lang: Lang }) {
             <GroupTitle price={localizePrice(pasteisPrecos.tradicionais, lang)}>{t.subtabs.tradicionais}</GroupTitle>
             <div>
               {pasteisSalgadosTradicionais.map((item) => (
-                <MenuItemRow key={item.numero} item={item} lang={lang} priceLabel={localizePrice(pasteisPrecos.tradicionais, lang)} />
+                <MenuItemRow
+                  key={item.numero}
+                  item={item}
+                  lang={lang}
+                  priceLabel={localizePrice(pasteisPrecos.tradicionais, lang)}
+                  numberedAs="Pastel"
+                />
               ))}
             </div>
           </SectionCard>
@@ -35,7 +41,13 @@ export function PasteisSection({ lang }: { lang: Lang }) {
             <GroupTitle price={localizePrice(pasteisPrecos.especiais, lang)}>{t.subtabs.especiais}</GroupTitle>
             <div>
               {pasteisSalgadosEspeciais.map((item) => (
-                <MenuItemRow key={item.numero} item={item} lang={lang} priceLabel={localizePrice(pasteisPrecos.especiais, lang)} />
+                <MenuItemRow
+                  key={item.numero}
+                  item={item}
+                  lang={lang}
+                  priceLabel={localizePrice(pasteisPrecos.especiais, lang)}
+                  numberedAs="Pastel"
+                />
               ))}
             </div>
           </SectionCard>
@@ -47,7 +59,13 @@ export function PasteisSection({ lang }: { lang: Lang }) {
           <GroupTitle price={localizePrice(pasteisPrecos.doces, lang)}>{t.anyFlavor}</GroupTitle>
           <div>
             {pasteisDoces.map((item) => (
-              <MenuItemRow key={item.numero} item={item} lang={lang} priceLabel={localizePrice(pasteisPrecos.doces, lang)} />
+              <MenuItemRow
+                key={item.numero}
+                item={item}
+                lang={lang}
+                priceLabel={localizePrice(pasteisPrecos.doces, lang)}
+                numberedAs="Pastel"
+              />
             ))}
           </div>
         </SectionCard>
