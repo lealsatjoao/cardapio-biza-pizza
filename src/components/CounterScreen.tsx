@@ -12,8 +12,8 @@ function formatTime(ts: number): string {
 function Background() {
   return (
     <div
-      className="fixed inset-0 z-0 h-full w-full bg-black bg-contain bg-center bg-no-repeat pointer-events-none"
-      style={{ backgroundImage: `url(${import.meta.env.BASE_URL}bg-biza.jpg)` }}
+      className="fixed inset-0 z-0 h-full w-full bg-black bg-cover bg-center bg-no-repeat pointer-events-none"
+      style={{ backgroundImage: `url(${import.meta.env.BASE_URL}bg-biza-horizontal.jpg)` }}
     >
       <div className="absolute inset-0 bg-black/55 backdrop-blur-[0.5px]" />
     </div>
