@@ -155,6 +155,9 @@ export function buildReceipt(
         lines.push(noteLine ? `    ${noteLine}` : '')
       }
     }
+    if (addonsPerUnit > 0) {
+      lines.push(`    Valor adicional: ${money(addonsPerUnit)}`)
+    }
     if (item.observation) {
       lines.push(`    Obs: ${item.observation}`)
     }
@@ -164,11 +167,11 @@ export function buildReceipt(
   const deliveryFee = delivery.mode === 'delivery' ? delivery.quote.fee : 0
   const taxAmount = calculateTax(itemsBaseTotal + addonsTotal + deliveryFee)
   const grandTotal = itemsBaseTotal + addonsTotal + deliveryFee + taxAmount
-  const totalAdicional = addonsTotal + taxAmount
   const unknownSuffix = hasUnknown ? ' (+ itens sem preço fixo)' : ''
 
   lines.push(totalsLine('Total Itens', money(itemsBaseTotal) + unknownSuffix))
-  lines.push(totalsLine('Total Adicional', money(totalAdicional)))
+  lines.push(totalsLine('Adicional', money(addonsTotal)))
+  lines.push(totalsLine('Tax (8%)', money(taxAmount)))
   if (delivery.mode === 'delivery') {
     lines.push(totalsLine('Taxa Entrega', money(deliveryFee)))
   }
