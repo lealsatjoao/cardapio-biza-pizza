@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import {
+  bordaOpcoes,
   itemDescription,
   itemName,
   localizePrice,
@@ -12,7 +13,7 @@ import { useCart } from '../context/CartContext'
 import { formatCurrency, parsePriceLabel } from '../utils/price'
 import { translations, type Lang } from '../utils/translations'
 
-type Step = 'size' | 'more' | 'flavors' | 'soda'
+type Step = 'size' | 'more' | 'flavors' | 'crust' | 'soda'
 type SizeKey = keyof typeof pizzaSizePrices
 
 export function PizzaOrderWizard({
@@ -34,6 +35,7 @@ export function PizzaOrderWizard({
   const [step, setStep] = useState<Step>('size')
   const [size, setSize] = useState<SizeKey | null>(null)
   const [selected, setSelected] = useState<MenuItem[]>([firstFlavor])
+  const [selectedCrust, setSelectedCrust] = useState<string | null>(null)
 
   const sizes: { key: SizeKey; label: string; preco: string }[] = [
     { key: 'broto', label: t.sizes.broto, preco: pizzaSizePrices.broto },
@@ -53,11 +55,12 @@ export function PizzaOrderWizard({
   }, 0)
   const totalPriceLabel = `${formatCurrency(basePrice + extraTotal)} +Tax`
 
-  const finish = (sodaFlavor: string | null) => {
+  const finish = (crust: string, sodaFlavor: string | null) => {
     const sizeLabel = sizes.find((s) => s.key === size)!.label
     const flavorNames = selected.map((item) => itemName(item, lang)).join(' + ')
-    const note = sodaFlavor ? `${sizeLabel} · ${lang === 'pt' ? 'Refrigerante' : 'Soda'}: ${sodaFlavor}` : sizeLabel
-    requestAdd({ name: flavorNames, note, priceLabel: totalPriceLabel })
+    const parts = [sizeLabel, `${lang === 'pt' ? 'Borda' : 'Crust'}: ${crust}`]
+    if (sodaFlavor) parts.push(`${lang === 'pt' ? 'Refrigerante' : 'Soda'}: ${sodaFlavor}`)
+    requestAdd({ name: flavorNames, note: parts.join(' · '), priceLabel: totalPriceLabel })
     onClose()
   }
 
@@ -68,8 +71,7 @@ export function PizzaOrderWizard({
 
   const answerMore = (wantsMore: boolean) => {
     if (!wantsMore) {
-      if (size === 'gigante') setStep('soda')
-      else finish(null)
+      setStep('crust')
       return
     }
     setStep('flavors')
@@ -85,12 +87,28 @@ export function PizzaOrderWizard({
   }
 
   const confirmFlavors = () => {
-    if (size === 'gigante') setStep('soda')
-    else finish(null)
+    setStep('crust')
+  }
+
+  const pickCrust = (crustName: string) => {
+    if (size === 'gigante') {
+      setSelectedCrust(crustName)
+      setStep('soda')
+    } else {
+      finish(crustName, null)
+    }
   }
 
   const stepTitle =
-    step === 'size' ? tw.sizeTitle : step === 'more' ? tw.moreTitle : step === 'flavors' ? tw.flavorsTitle : tw.sodaTitle
+    step === 'size'
+      ? tw.sizeTitle
+      : step === 'more'
+        ? tw.moreTitle
+        : step === 'flavors'
+          ? tw.flavorsTitle
+          : step === 'crust'
+            ? tw.crustTitle
+            : tw.sodaTitle
 
   return (
     <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center">
@@ -191,13 +209,31 @@ export function PizzaOrderWizard({
             </div>
           )}
 
+          {step === 'crust' && (
+            <div>
+              {bordaOpcoes.map((borda) => (
+                <button
+                  key={borda.nome}
+                  type="button"
+                  onClick={() => pickCrust(lang === 'en' ? borda.nomeEn : borda.nome)}
+                  className="flex w-full items-center justify-between gap-2.5 border-b border-white/10 py-2.5 text-left last:border-0 hover:bg-white/5"
+                >
+                  <span className="text-sm font-semibold text-white">{lang === 'en' ? borda.nomeEn : borda.nome}</span>
+                  <span className="rounded-full bg-green-600/80 px-2 py-0.5 text-[11px] font-bold text-white">
+                    {tw.included}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+
           {step === 'soda' && (
             <div>
               {sodaOptions.map((flavor) => (
                 <button
                   key={flavor}
                   type="button"
-                  onClick={() => finish(flavor)}
+                  onClick={() => finish(selectedCrust!, flavor)}
                   className="flex w-full items-center justify-between gap-2.5 border-b border-white/10 py-2.5 text-left last:border-0 hover:bg-white/5"
                 >
                   <span className="text-sm font-semibold text-white">{flavor}</span>

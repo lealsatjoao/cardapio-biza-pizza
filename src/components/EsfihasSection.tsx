@@ -6,18 +6,19 @@ import {
   esfihasSalgadas,
   esfihasSalgadasPrecoBase,
   localizePrice,
+  type ComboEsfiha,
 } from '../data/menu'
-import { useCart } from '../context/CartContext'
 import { translations, type Lang } from '../utils/translations'
 import { AddButton } from './AddButton'
+import { ComboSodaModal } from './ComboSodaModal'
 import { MenuItemRow } from './MenuItemRow'
 import { GroupTitle, Notice, SectionCard } from './SectionCard'
 import { Tabs } from './Tabs'
 
 export function EsfihasSection({ lang }: { lang: Lang }) {
   const t = translations[lang]
-  const { requestAdd } = useCart()
   const [sub, setSub] = useState('combos')
+  const [sodaCombo, setSodaCombo] = useState<ComboEsfiha | null>(null)
 
   const SUBTABS = [
     { id: 'combos', label: t.subtabs.combos },
@@ -44,16 +45,7 @@ export function EsfihasSection({ lang }: { lang: Lang }) {
                   <span className="whitespace-nowrap rounded-full bg-orange-500/90 px-2.5 py-1 text-xs font-bold text-white">
                     {localizePrice(combo.preco, lang)}
                   </span>
-                  <AddButton
-                    label={t.cart.add}
-                    onClick={() =>
-                      requestAdd({
-                        name: lang === 'en' ? combo.nomeEn : combo.nome,
-                        note: lang === 'en' ? combo.subtituloEn : combo.subtitulo,
-                        priceLabel: localizePrice(combo.preco, lang),
-                      })
-                    }
-                  />
+                  <AddButton label={t.cart.add} onClick={() => setSodaCombo(combo)} />
                 </div>
               </div>
               <ul className="space-y-1 text-xs text-white/80">
@@ -87,6 +79,8 @@ export function EsfihasSection({ lang }: { lang: Lang }) {
           </div>
         </SectionCard>
       )}
+
+      {sodaCombo && <ComboSodaModal combo={sodaCombo} lang={lang} onClose={() => setSodaCombo(null)} />}
     </div>
   )
 }

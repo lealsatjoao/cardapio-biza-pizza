@@ -15,6 +15,9 @@ export interface ComboEsfiha {
   preco: string
   composicao: string[]
   composicaoEn: string[]
+  /** Refrigerante incluso no combo (sem custo extra) — tamanho e quantas latas/garrafas a pessoa escolhe. */
+  sodaType: 'lata' | '2l'
+  sodaQty: number
 }
 
 export interface PorcaoItem {
@@ -117,6 +120,15 @@ export const pizzaSizeConfig = {
   gigante: { fatias: 12, maxSabores: 3 },
 }
 
+// Bordas recheadas inclusas (sem custo extra) em todas as pizzas, qualquer tamanho.
+export const bordaOpcoes: { nome: string; nomeEn: string }[] = [
+  { nome: 'Catupiry', nomeEn: 'Catupiry' },
+  { nome: 'Cheddar', nomeEn: 'Cheddar' },
+  { nome: 'Mussarela', nomeEn: 'Mozzarella' },
+  { nome: 'Chocolate', nomeEn: 'Chocolate' },
+  { nome: 'Doce de Leite', nomeEn: 'Dulce de Leche' },
+]
+
 export const pizzasSalgadasTradicionais: MenuItem[] = [
   { numero: 1, nome: 'A Moda do Pizzaiolo', descricao: 'Milho, ervilha, pimentão e calabresa.', descricaoEn: 'Corn, peas, bell pepper and Brazilian sausage.' },
   { numero: 2, nome: 'Atum', descricao: 'Atum e cebola.', descricaoEn: 'Tuna and onion.' },
@@ -186,6 +198,8 @@ export const combosEsfihas: ComboEsfiha[] = [
     preco: '$23,00 +Tax',
     composicao: ['2 de carne', '2 de calabresa com queijo', '2 de frango com catupiry', '1 de quatro queijos'],
     composicaoEn: ['2 beef', '2 sausage with cheese', '2 chicken with Catupiry', '1 four cheese'],
+    sodaType: 'lata',
+    sodaQty: 1,
   },
   {
     nome: 'Combo Eu e Você',
@@ -207,6 +221,8 @@ export const combosEsfihas: ComboEsfiha[] = [
       '3 four cheese',
       '3 bacon with cheese',
     ],
+    sodaType: 'lata',
+    sodaQty: 2,
   },
   {
     nome: 'Combo Nós',
@@ -216,6 +232,8 @@ export const combosEsfihas: ComboEsfiha[] = [
     preco: '$60,00 +Tax',
     composicao: ['5 de carne', '5 de calabresa com queijo', '5 de frango com catupiry', '5 de quatro queijos'],
     composicaoEn: ['5 beef', '5 sausage with cheese', '5 chicken with Catupiry', '5 four cheese'],
+    sodaType: '2l',
+    sodaQty: 1,
   },
   {
     nome: 'Combo Galera',
@@ -239,6 +257,8 @@ export const combosEsfihas: ComboEsfiha[] = [
       '5 four cheese',
       '5 of your choice',
     ],
+    sodaType: '2l',
+    sodaQty: 1,
   },
 ]
 

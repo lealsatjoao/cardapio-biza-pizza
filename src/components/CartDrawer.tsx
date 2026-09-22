@@ -1,12 +1,12 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useCart } from '../context/CartContext'
 import { translations, type Lang } from '../utils/translations'
 import { calculateTax, formatCurrency, parsePriceLabel } from '../utils/price'
 import { buildOrderMessage, buildWhatsAppUrl, type OrderDelivery } from '../utils/whatsapp'
-import { calculateDeliveryFee, type DeliveryQuote } from '../utils/delivery'
+import { calculateDeliveryFee, searchAddressSuggestions, type AddressSuggestion, type DeliveryQuote } from '../utils/delivery'
 import { ConfirmDialog } from './ConfirmDialog'
 
-type DeliveryErrorStatus = 'out_of_range' | 'not_found' | 'imprecise' | 'error'
+type DeliveryErrorStatus = 'out_of_range' | 'error'
 
 export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean; onClose: () => void }) {
   const { items, removeItem, changeQty, clear, totalKnown, hasUnknownPriceItems } = useCart()
@@ -17,31 +17,57 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
 
   const [mode, setMode] = useState<'pickup' | 'delivery'>('pickup')
   const [address, setAddress] = useState('')
+  const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([])
+  const [searching, setSearching] = useState(false)
+  const [selectedSuggestion, setSelectedSuggestion] = useState<AddressSuggestion | null>(null)
   const [calculating, setCalculating] = useState(false)
   const [quote, setQuote] = useState<DeliveryQuote | null>(null)
-  const [calculatedFor, setCalculatedFor] = useState('')
   const [deliveryError, setDeliveryError] = useState<DeliveryErrorStatus | null>(null)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const addressStale = selectedSuggestion !== null && address.trim() !== selectedSuggestion.label
+
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    if (!addressStale && selectedSuggestion) {
+      setSuggestions([])
+      return
+    }
+    if (address.trim().length < 4) {
+      setSuggestions([])
+      return
+    }
+    debounceRef.current = setTimeout(async () => {
+      setSearching(true)
+      const results = await searchAddressSuggestions(address.trim())
+      setSearching(false)
+      setSuggestions(results)
+    }, 350)
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address])
 
   if (!open) return null
 
-  const addressStale = quote !== null && address.trim() !== calculatedFor
   const deliveryFee = mode === 'delivery' && quote && !addressStale ? quote.fee : 0
   const taxAmount = calculateTax(totalKnown + deliveryFee)
   const grandTotal = totalKnown + deliveryFee + taxAmount
   const canSend = mode === 'pickup' || (quote !== null && !addressStale)
 
-  const handleCalculate = async () => {
-    const trimmed = address.trim()
-    if (!trimmed) return
-    setCalculating(true)
+  const pickSuggestion = async (suggestion: AddressSuggestion) => {
+    setAddress(suggestion.label)
+    setSelectedSuggestion(suggestion)
+    setSuggestions([])
+    setQuote(null)
     setDeliveryError(null)
-    const result = await calculateDeliveryFee(trimmed)
+    setCalculating(true)
+    const result = await calculateDeliveryFee(suggestion)
     setCalculating(false)
     if (result.status === 'ok') {
       setQuote(result.quote)
-      setCalculatedFor(trimmed)
     } else {
-      setQuote(null)
       setDeliveryError(result.status === 'not_configured' ? 'error' : result.status)
     }
   }
@@ -160,27 +186,47 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
 
               {mode === 'delivery' && (
                 <div className="mt-2.5 flex flex-col gap-2">
-                  <div>
+                  <div className="relative">
                     <label className="mb-1 block text-[11px] font-semibold text-white/50">{td.addressLabel}</label>
                     <input
                       type="text"
                       value={address}
-                      onChange={(e) => setAddress(e.target.value)}
+                      onChange={(e) => {
+                        setAddress(e.target.value)
+                        setQuote(null)
+                        setDeliveryError(null)
+                        if (selectedSuggestion && e.target.value.trim() !== selectedSuggestion.label) {
+                          setSelectedSuggestion(null)
+                        }
+                      }}
                       placeholder={td.addressPlaceholder}
                       className="w-full rounded-lg bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-orange-400"
                     />
+
+                    {suggestions.length > 0 && (
+                      <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-56 overflow-y-auto rounded-lg bg-neutral-900 shadow-xl ring-1 ring-white/15">
+                        {suggestions.map((s) => (
+                          <button
+                            key={s.label}
+                            type="button"
+                            onClick={() => pickSuggestion(s)}
+                            className="block w-full border-b border-white/5 px-3 py-2 text-left text-xs text-white last:border-0 hover:bg-white/10"
+                          >
+                            {s.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
-                  {(!quote || addressStale) && (
-                    <button
-                      type="button"
-                      onClick={handleCalculate}
-                      disabled={calculating || !address.trim()}
-                      className="w-full rounded-lg bg-white/10 py-2 text-xs font-bold text-white hover:bg-white/20 disabled:opacity-40"
-                    >
-                      {calculating ? td.calculating : addressStale ? td.recalculate : td.calculate}
-                    </button>
-                  )}
+                  {searching && <p className="text-[11px] text-white/50">{td.searching}</p>}
+                  {calculating && <p className="text-[11px] text-white/50">{td.calculating}</p>}
+
+                  {!searching &&
+                    !calculating &&
+                    address.trim().length >= 4 &&
+                    suggestions.length === 0 &&
+                    (!selectedSuggestion || addressStale) && <p className="text-[11px] text-white/50">{td.notFound}</p>}
 
                   {quote && !addressStale && (
                     <div className="rounded-lg bg-white/5 p-2.5 text-xs">
@@ -197,15 +243,7 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
                   )}
 
                   {deliveryError && (
-                    <p className="text-[11px] text-red-400">
-                      {deliveryError === 'out_of_range'
-                        ? td.outOfRange
-                        : deliveryError === 'not_found'
-                          ? td.notFound
-                          : deliveryError === 'imprecise'
-                            ? td.imprecise
-                            : td.error}
-                    </p>
+                    <p className="text-[11px] text-red-400">{deliveryError === 'out_of_range' ? td.outOfRange : td.error}</p>
                   )}
                 </div>
               )}
