@@ -47,6 +47,8 @@ export interface AddressSuggestion {
   /** Bairro e cidade/estado de entrega — usados na notinha do WhatsApp (linha embaixo do endereço). */
   neighbourhood?: string
   cityLabel?: string
+  /** ZIP code do endereço escolhido — preenche o campo de ZIP sozinho se a pessoa não digitou. */
+  postcode?: string
 }
 
 // URL de um mapinha estático com um pin no endereço escolhido — mostra visualmente pra pessoa
@@ -111,6 +113,7 @@ export async function searchAddressSuggestions(text: string): Promise<AddressSea
           isNewJersey,
           neighbourhood,
           cityLabel,
+          postcode: f.address?.postcode as string | undefined,
         }
       })
     return { status: 'ok', suggestions }

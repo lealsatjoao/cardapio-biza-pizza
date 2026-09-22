@@ -94,6 +94,8 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
   const pickSuggestion = async (suggestion: AddressSuggestion) => {
     setAddress(suggestion.label)
     setSelectedSuggestion(suggestion)
+    // Se a pessoa não digitou o ZIP code, preenche sozinho com o que veio no endereço escolhido.
+    if (!zip.trim() && suggestion.postcode) setZip(suggestion.postcode)
     setSuggestions([])
     setQuote(null)
     setDeliveryError(null)
