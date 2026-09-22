@@ -2,19 +2,53 @@ import { useState } from 'react'
 import { useCart } from '../context/CartContext'
 import { translations, type Lang } from '../utils/translations'
 import { formatCurrency, parsePriceLabel } from '../utils/price'
-import { buildOrderMessage, buildWhatsAppUrl } from '../utils/whatsapp'
+import { buildOrderMessage, buildWhatsAppUrl, type OrderDelivery } from '../utils/whatsapp'
+import { calculateDeliveryFee, type DeliveryQuote } from '../utils/delivery'
 import { ConfirmDialog } from './ConfirmDialog'
+
+type DeliveryErrorStatus = 'out_of_range' | 'not_found' | 'imprecise' | 'error'
 
 export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean; onClose: () => void }) {
   const { items, removeItem, changeQty, clear, totalKnown, hasUnknownPriceItems } = useCart()
   const t = translations[lang].cart
+  const td = translations[lang].delivery
   const [confirmRemoveId, setConfirmRemoveId] = useState<string | null>(null)
   const [confirmClear, setConfirmClear] = useState(false)
 
+  const [mode, setMode] = useState<'pickup' | 'delivery'>('pickup')
+  const [address, setAddress] = useState('')
+  const [calculating, setCalculating] = useState(false)
+  const [quote, setQuote] = useState<DeliveryQuote | null>(null)
+  const [calculatedFor, setCalculatedFor] = useState('')
+  const [deliveryError, setDeliveryError] = useState<DeliveryErrorStatus | null>(null)
+
   if (!open) return null
 
+  const addressStale = quote !== null && address.trim() !== calculatedFor
+  const deliveryFee = mode === 'delivery' && quote && !addressStale ? quote.fee : 0
+  const grandTotal = totalKnown + deliveryFee
+  const canSend = mode === 'pickup' || (quote !== null && !addressStale)
+
+  const handleCalculate = async () => {
+    const trimmed = address.trim()
+    if (!trimmed) return
+    setCalculating(true)
+    setDeliveryError(null)
+    const result = await calculateDeliveryFee(trimmed)
+    setCalculating(false)
+    if (result.status === 'ok') {
+      setQuote(result.quote)
+      setCalculatedFor(trimmed)
+    } else {
+      setQuote(null)
+      setDeliveryError(result.status === 'not_configured' ? 'error' : result.status)
+    }
+  }
+
   const handleSend = () => {
-    const message = buildOrderMessage(items, lang)
+    const delivery: OrderDelivery =
+      mode === 'delivery' && quote && !addressStale ? { mode: 'delivery', quote } : { mode: 'pickup' }
+    const message = buildOrderMessage(items, lang, delivery)
     window.open(buildWhatsAppUrl(message), '_blank', 'noopener,noreferrer')
   }
 
@@ -100,15 +134,104 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
 
         {items.length > 0 && (
           <div className="border-t border-white/10 px-4 py-3">
+            <div className="mb-3">
+              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-white/50">{td.title}</p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setMode('pickup')}
+                  className={`flex-1 rounded-lg py-2 text-xs font-bold transition-colors ${
+                    mode === 'pickup' ? 'bg-orange-500 text-white' : 'bg-white/5 text-white/60 hover:bg-white/10'
+                  }`}
+                >
+                  {td.pickup}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMode('delivery')}
+                  className={`flex-1 rounded-lg py-2 text-xs font-bold transition-colors ${
+                    mode === 'delivery' ? 'bg-orange-500 text-white' : 'bg-white/5 text-white/60 hover:bg-white/10'
+                  }`}
+                >
+                  {td.delivery}
+                </button>
+              </div>
+
+              {mode === 'delivery' && (
+                <div className="mt-2.5 flex flex-col gap-2">
+                  <div>
+                    <label className="mb-1 block text-[11px] font-semibold text-white/50">{td.addressLabel}</label>
+                    <input
+                      type="text"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      placeholder={td.addressPlaceholder}
+                      className="w-full rounded-lg bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-orange-400"
+                    />
+                  </div>
+
+                  {(!quote || addressStale) && (
+                    <button
+                      type="button"
+                      onClick={handleCalculate}
+                      disabled={calculating || !address.trim()}
+                      className="w-full rounded-lg bg-white/10 py-2 text-xs font-bold text-white hover:bg-white/20 disabled:opacity-40"
+                    >
+                      {calculating ? td.calculating : addressStale ? td.recalculate : td.calculate}
+                    </button>
+                  )}
+
+                  {quote && !addressStale && (
+                    <div className="rounded-lg bg-white/5 p-2.5 text-xs">
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/60">{td.distanceLabel}</span>
+                        <span className="font-semibold text-white">{quote.distanceMi.toFixed(1)} mi</span>
+                      </div>
+                      <div className="mt-1 flex items-center justify-between">
+                        <span className="text-white/60">{td.feeLabel}</span>
+                        <span className="font-semibold text-orange-300">{formatCurrency(quote.fee)}</span>
+                      </div>
+                      {quote.isNewJersey && <p className="mt-1.5 text-[11px] text-white/50">{td.njToll}</p>}
+                    </div>
+                  )}
+
+                  {deliveryError && (
+                    <p className="text-[11px] text-red-400">
+                      {deliveryError === 'out_of_range'
+                        ? td.outOfRange
+                        : deliveryError === 'not_found'
+                          ? td.notFound
+                          : deliveryError === 'imprecise'
+                            ? td.imprecise
+                            : td.error}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {deliveryFee > 0 && (
+              <div className="mb-1 flex items-center justify-between">
+                <span className="text-xs text-white/60">{t.subtotal}</span>
+                <span className="text-xs text-white/80">{formatCurrency(totalKnown)}</span>
+              </div>
+            )}
+            {deliveryFee > 0 && (
+              <div className="mb-1 flex items-center justify-between">
+                <span className="text-xs text-white/60">{td.feeLabel}</span>
+                <span className="text-xs text-white/80">{formatCurrency(deliveryFee)}</span>
+              </div>
+            )}
             <div className="mb-1 flex items-center justify-between">
               <span className="text-sm font-semibold text-white/80">{t.total}</span>
-              <span className="text-base font-bold text-orange-300">{formatCurrency(totalKnown)}</span>
+              <span className="text-base font-bold text-orange-300">{formatCurrency(grandTotal)}</span>
             </div>
             {hasUnknownPriceItems && <p className="mb-2 text-[11px] text-white/50">{t.taxNotice}</p>}
             <button
               type="button"
               onClick={handleSend}
-              className="mb-2 w-full rounded-xl bg-green-600 py-2.5 text-sm font-bold text-white shadow-md transition-transform active:scale-95 hover:bg-green-500"
+              disabled={!canSend}
+              className="mb-2 w-full rounded-xl bg-green-600 py-2.5 text-sm font-bold text-white shadow-md transition-transform active:scale-95 hover:bg-green-500 disabled:opacity-40 disabled:active:scale-100"
             >
               {t.sendWhatsapp}
             </button>
