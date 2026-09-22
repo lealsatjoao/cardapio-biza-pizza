@@ -15,7 +15,7 @@ function Background() {
       className="fixed inset-0 z-0 h-full w-full bg-black bg-cover bg-center bg-no-repeat pointer-events-none"
       style={{ backgroundImage: `url(${import.meta.env.BASE_URL}bg-biza-horizontal.jpg)` }}
     >
-      <div className="absolute inset-0 bg-black/55 backdrop-blur-[0.5px]" />
+      <div className="absolute inset-0 bg-black/35" />
     </div>
   )
 }
@@ -41,26 +41,26 @@ function LoginForm() {
   return (
     <div className="relative flex min-h-screen items-center justify-center px-4">
       <Background />
-      <form onSubmit={handleLogin} className="relative z-10 w-full max-w-xs rounded-2xl bg-neutral-950/80 p-6 ring-1 ring-white/10">
-        <h1 className="mb-1 text-lg font-bold text-white">Biza Pizzas — Balcão</h1>
-        <p className="mb-4 text-xs text-white/50">Login da loja pra ver os pedidos.</p>
-        <label className="mb-1 block text-[11px] font-semibold text-white/50">E-mail</label>
+      <form onSubmit={handleLogin} className="relative z-10 w-full max-w-xs rounded-2xl bg-white/95 p-6 shadow-xl ring-1 ring-black/10">
+        <h1 className="mb-1 text-lg font-bold text-black">Biza Pizzas — Balcão</h1>
+        <p className="mb-4 text-xs text-black/60">Login da loja pra ver os pedidos.</p>
+        <label className="mb-1 block text-[11px] font-semibold text-black/60">E-mail</label>
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="mb-3 w-full rounded-lg bg-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-orange-400"
+          className="mb-3 w-full rounded-lg bg-neutral-100 px-3 py-2 text-sm text-black focus:outline-none focus:ring-1 focus:ring-orange-400"
           autoComplete="username"
         />
-        <label className="mb-1 block text-[11px] font-semibold text-white/50">Senha</label>
+        <label className="mb-1 block text-[11px] font-semibold text-black/60">Senha</label>
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="mb-4 w-full rounded-lg bg-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-orange-400"
+          className="mb-4 w-full rounded-lg bg-neutral-100 px-3 py-2 text-sm text-black focus:outline-none focus:ring-1 focus:ring-orange-400"
           autoComplete="current-password"
         />
-        {error && <p className="mb-3 text-[11px] font-semibold text-red-400">{error}</p>}
+        {error && <p className="mb-3 text-[11px] font-semibold text-red-600">{error}</p>}
         <button
           type="submit"
           disabled={loading}
@@ -75,7 +75,7 @@ function LoginForm() {
 
 function ReceiptBlock({ order }: { order: StoredOrder }) {
   return (
-    <pre className="overflow-x-auto whitespace-pre rounded-lg bg-black/40 p-3 font-mono text-[11px] leading-snug text-white/90">
+    <pre className="overflow-x-auto whitespace-pre rounded-lg bg-neutral-100 p-3 font-mono text-[11px] leading-snug text-black">
       {order.receiptText}
     </pre>
   )
@@ -100,26 +100,26 @@ function OrderCard({
   const [confirmingArchive, setConfirmingArchive] = useState(false)
 
   return (
-    <div className="rounded-xl bg-neutral-950/80 ring-1 ring-white/10">
+    <div className="rounded-xl bg-white/95 shadow ring-1 ring-black/10">
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
         className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left"
       >
         <div>
-          <p className="text-sm font-bold text-white">
+          <p className="text-sm font-bold text-black">
             Controle {order.controle ?? '-'} — {order.customerName}
           </p>
-          <p className="text-xs text-white/50">
+          <p className="text-xs text-black/60">
             {order.mode === 'delivery' ? 'Entrega' : 'Retirada'} · ${order.grandTotal.toFixed(2)} ·{' '}
             {formatTime(order.createdAt)}
           </p>
         </div>
-        <span className="text-white/40">{expanded ? '▲' : '▼'}</span>
+        <span className="text-black/40">{expanded ? '▲' : '▼'}</span>
       </button>
 
       {expanded && (
-        <div className="border-t border-white/10 p-4">
+        <div className="border-t border-black/10 p-4">
           <ReceiptBlock order={order} />
           <div className="mt-3 flex gap-2">
             <button
@@ -142,7 +142,7 @@ function OrderCard({
                 <button
                   type="button"
                   onClick={() => setConfirmingArchive(true)}
-                  className="rounded-lg bg-white/10 px-3 py-2 text-xs font-semibold text-white/60 hover:bg-white/20"
+                  className="rounded-lg bg-black/5 px-3 py-2 text-xs font-semibold text-black/60 hover:bg-black/10"
                 >
                   Remover
                 </button>
@@ -182,24 +182,22 @@ function HistoryTab({ onPrint }: { onPrint: (order: StoredOrder) => void }) {
   return (
     <div>
       <div className="mb-4 flex items-center gap-3">
-        <label className="text-xs font-semibold text-white/50">Dia:</label>
+        <label className="text-xs font-semibold text-black">Dia:</label>
         <input
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
-          // O campo de data mostra fundo branco em vários navegadores (Safari inclusive),
-          // não dá pra estilizar isso — por isso a letra fica preta, não branca.
           className="rounded-lg bg-white px-3 py-1.5 text-sm text-black focus:outline-none focus:ring-1 focus:ring-orange-400"
         />
       </div>
 
       {loading ? (
-        <p className="text-sm text-white/50">Carregando...</p>
+        <p className="text-sm text-black/70">Carregando...</p>
       ) : !orders || orders.length === 0 ? (
-        <p className="text-sm text-white/50">Nenhum pedido arquivado nesse dia.</p>
+        <p className="text-sm text-black/70">Nenhum pedido arquivado nesse dia.</p>
       ) : (
         <>
-          <p className="mb-3 text-xs text-white/50">
+          <p className="mb-3 text-xs text-black/70">
             {orders.length} pedido{orders.length > 1 ? 's' : ''} · total ${dayTotal.toFixed(2)}
           </p>
           <div className="flex flex-col gap-3">
@@ -241,9 +239,9 @@ export function CounterScreen() {
 
   if (user === 'loading') {
     return (
-      <div className="relative flex min-h-screen items-center justify-center text-white/50">
+      <div className="relative flex min-h-screen items-center justify-center">
         <Background />
-        <span className="relative z-10">Carregando...</span>
+        <span className="relative z-10 rounded-lg bg-white/90 px-4 py-2 text-sm text-black">Carregando...</span>
       </div>
     )
   }
@@ -254,15 +252,15 @@ export function CounterScreen() {
     <div className="relative min-h-screen px-4 py-6">
       <Background />
       <div className="print:hidden relative z-10 mx-auto max-w-xl">
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4 flex items-center justify-between rounded-xl bg-white/95 px-4 py-3 shadow ring-1 ring-black/10">
           <div className="flex items-center gap-2">
             <img src={`${ICON_BASE}pizza.png`} alt="" className="h-7 w-7" />
-            <h1 className="text-lg font-bold text-white">Biza Pizzas — Balcão</h1>
+            <h1 className="text-lg font-bold text-black">Biza Pizzas — Balcão</h1>
           </div>
           <button
             type="button"
             onClick={() => signOut(auth)}
-            className="rounded-lg bg-white/10 px-3 py-1.5 text-xs font-semibold text-white/60 hover:bg-white/20"
+            className="rounded-lg bg-black/5 px-3 py-1.5 text-xs font-semibold text-black/60 hover:bg-black/10"
           >
             Sair
           </button>
@@ -273,7 +271,7 @@ export function CounterScreen() {
             type="button"
             onClick={() => setTab('pedidos')}
             className={`flex-1 rounded-lg py-2 text-xs font-bold transition-colors ${
-              tab === 'pedidos' ? 'bg-orange-500 text-white' : 'bg-white/5 text-white/60 hover:bg-white/10'
+              tab === 'pedidos' ? 'bg-orange-500 text-white' : 'bg-white/90 text-black/70 hover:bg-white'
             }`}
           >
             Pedidos novos
@@ -282,7 +280,7 @@ export function CounterScreen() {
             type="button"
             onClick={() => setTab('historico')}
             className={`flex-1 rounded-lg py-2 text-xs font-bold transition-colors ${
-              tab === 'historico' ? 'bg-orange-500 text-white' : 'bg-white/5 text-white/60 hover:bg-white/10'
+              tab === 'historico' ? 'bg-orange-500 text-white' : 'bg-white/90 text-black/70 hover:bg-white'
             }`}
           >
             Histórico
@@ -291,7 +289,7 @@ export function CounterScreen() {
 
         {tab === 'pedidos' ? (
           orders.length === 0 ? (
-            <p className="text-sm text-white/50">Nenhum pedido novo.</p>
+            <p className="rounded-lg bg-white/90 px-4 py-3 text-sm text-black/70">Nenhum pedido novo.</p>
           ) : (
             <div className="flex flex-col gap-3">
               {orders.map((order) => (
