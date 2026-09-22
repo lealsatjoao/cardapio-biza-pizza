@@ -28,6 +28,7 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
   const [mode, setMode] = useState<'pickup' | 'delivery'>('pickup')
   const [address, setAddress] = useState('')
   const [zip, setZip] = useState('')
+  const [aptUnit, setAptUnit] = useState('')
   const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([])
   const [searching, setSearching] = useState(false)
   const [searchUnavailable, setSearchUnavailable] = useState(false)
@@ -97,7 +98,9 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
   const handleSend = () => {
     if (!paymentMethod) return
     const delivery: OrderDelivery =
-      mode === 'delivery' && quote && !addressStale ? { mode: 'delivery', quote } : { mode: 'pickup' }
+      mode === 'delivery' && quote && !addressStale
+        ? { mode: 'delivery', quote, aptUnit: aptUnit.trim() || undefined }
+        : { mode: 'pickup' }
     const message = buildOrderMessage(items, lang, customerName.trim(), { method: paymentMethod, changeFor }, delivery)
     window.open(buildWhatsAppUrl(message), '_blank', 'noopener,noreferrer')
   }
@@ -310,6 +313,17 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
                       ))}
                     </div>
                   )}
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-[11px] font-semibold text-white/50">{td.aptLabel}</label>
+                  <input
+                    type="text"
+                    value={aptUnit}
+                    onChange={(e) => setAptUnit(e.target.value)}
+                    placeholder={td.aptPlaceholder}
+                    className="w-full rounded-lg bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-orange-400"
+                  />
                 </div>
 
                 {searching && <p className="text-[11px] text-white/50">{td.searching}</p>}

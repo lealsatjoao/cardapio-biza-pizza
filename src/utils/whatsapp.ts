@@ -6,7 +6,7 @@ import { calculateTax, formatCurrency, parsePriceLabel } from './price'
 // Número da Biza Pizza (DDI 55 + DDD + número) usado para receber os pedidos via WhatsApp.
 export const WHATSAPP_NUMBER = '5511958776672'
 
-export type OrderDelivery = { mode: 'pickup' } | { mode: 'delivery'; quote: DeliveryQuote }
+export type OrderDelivery = { mode: 'pickup' } | { mode: 'delivery'; quote: DeliveryQuote; aptUnit?: string }
 
 export type PaymentMethod = 'cash' | 'zelle' | 'venmo' | 'card'
 
@@ -55,6 +55,9 @@ export function buildOrderMessage(
 
   if (delivery?.mode === 'delivery') {
     lines.push(isPt ? `Endereço: ${delivery.quote.address}` : `Address: ${delivery.quote.address}`)
+    if (delivery.aptUnit?.trim()) {
+      lines.push(isPt ? `Apto/Unidade: ${delivery.aptUnit.trim()}` : `Apt/Unit: ${delivery.aptUnit.trim()}`)
+    }
     lines.push(
       isPt
         ? `Distância: ${delivery.quote.distanceMi.toFixed(1)} mi`
