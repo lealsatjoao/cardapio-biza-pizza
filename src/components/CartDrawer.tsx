@@ -26,7 +26,10 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
   const [confirmRemoveId, setConfirmRemoveId] = useState<string | null>(null)
   const [confirmClear, setConfirmClear] = useState(false)
 
-  const [savedCustomer] = useState(loadSavedCustomer)
+  // O carrinho não desmonta quando fecha (só some da tela), então esse estado precisa ser
+  // atualizado manualmente depois de cada pedido — senão o app fica "lembrando" só do que
+  // tinha no aparelho quando a página abriu, e não reconhece o telefone no pedido seguinte.
+  const [savedCustomer, setSavedCustomer] = useState(loadSavedCustomer)
   // Telefone é o único campo pré-preenchido de cara — os outros só vêm quando o telefone
   // digitado bate com o telefone salvo (evita preencher com dado de outra pessoa, caso o
   // aparelho seja compartilhado).
@@ -181,7 +184,9 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
       return
     }
     // Guarda os dados só neste aparelho — preenche sozinho da próxima vez que a pessoa pedir.
-    saveCustomer({
+    // Atualiza o localStorage E o estado em memória (o carrinho não recarrega a página entre
+    // pedidos, então sem isso o pedido seguinte não reconheceria o telefone digitado).
+    const infoToSave = {
       name: customerName.trim(),
       phone: customerPhone.trim(),
       zip: zip.trim() || undefined,
@@ -189,7 +194,9 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
       aptUnit: aptUnit.trim() || undefined,
       lastSuggestion: mode === 'delivery' && !addressStale ? (selectedSuggestion ?? undefined) : undefined,
       lastQuote: mode === 'delivery' && !addressStale ? (quote ?? undefined) : undefined,
-    })
+    }
+    saveCustomer(infoToSave)
+    setSavedCustomer(infoToSave)
     setConfirmedOrder({ controle, name: customerName.trim() })
     clear()
     setSending(false)
