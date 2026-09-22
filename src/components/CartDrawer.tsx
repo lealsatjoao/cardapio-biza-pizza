@@ -73,25 +73,59 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
     }
   }
 
-  // Quando o telefone digitado bate com o telefone salvo NESSE aparelho, preenche na hora
-  // (sem esperar rede).
+  // Achado um telefone conhecido (local ou no Firebase), os dados NÃO são preenchidos direto —
+  // ficam guardados aqui só como "candidato", pra pessoa ver escrito e confirmar antes de
+  // qualquer coisa aparecer nos campos do formulário (pedido do João, 22/09/2026).
+  const [pendingMatch, setPendingMatch] = useState<SavedCustomerInfo | null>(null)
+  // true = já pode mostrar o formulário completo (telefone confirmado com um cadastro, ou
+  // telefone novo sem cadastro nenhum, ou a pessoa disse "não sou eu").
+  const [phoneVerified, setPhoneVerified] = useState(false)
+  const [checkingPhone, setCheckingPhone] = useState(false)
+  // Telefone (só dígitos) já resolvido nesta sessão — evita ficar checando de novo à toa
+  // enquanto a pessoa não muda o número.
+  const [resolvedDigits, setResolvedDigits] = useState<string | null>(null)
+
+  // Quando o telefone digitado bate com o telefone salvo NESSE aparelho, acha o "candidato"
+  // na hora (sem esperar rede) — mas só mostra depois de confirmado.
   useEffect(() => {
     const typedDigits = customerPhone.replace(/\D/g, '')
+    if (typedDigits.length < 10) {
+      setPendingMatch(null)
+      setPhoneVerified(false)
+      setResolvedDigits(null)
+      return
+    }
+    if (typedDigits === resolvedDigits) return
     const savedDigits = (savedCustomer.phone ?? '').replace(/\D/g, '')
-    if (!typedDigits || !savedDigits || typedDigits !== savedDigits) return
-    applyCustomerInfo(savedCustomer)
+    if (typedDigits === savedDigits) {
+      setPendingMatch(savedCustomer)
+      setPhoneVerified(false)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customerPhone])
 
   // Também busca no Firebase por esse telefone — funciona mesmo em outro aparelho/navegador
   // (decisão do João, 22/09/2026: aceitou o risco de privacidade pra ganhar essa comodidade).
+  // Só roda se não achou nada local (senão duplica o candidato à toa).
   useEffect(() => {
     const digits = customerPhone.replace(/\D/g, '')
-    if (digits.length < 10) return
+    const savedDigits = (savedCustomer.phone ?? '').replace(/\D/g, '')
+    if (digits.length < 10 || digits === savedDigits || digits === resolvedDigits) return
     let cancelled = false
+    setCheckingPhone(true)
     const timer = setTimeout(async () => {
       const record = await lookupCustomerRecord(digits)
-      if (record && !cancelled) applyCustomerInfo(record)
+      if (cancelled) return
+      setCheckingPhone(false)
+      if (record) {
+        setPendingMatch(record)
+        setPhoneVerified(false)
+      } else {
+        // Telefone sem cadastro em lugar nenhum — é a primeira vez, segue pro formulário
+        // vazio de preenchimento manual direto, sem pedir confirmação de nada.
+        setPhoneVerified(true)
+        setResolvedDigits(digits)
+      }
     }, 400)
     return () => {
       cancelled = true
@@ -99,6 +133,20 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customerPhone])
+
+  const confirmPendingMatch = () => {
+    if (!pendingMatch) return
+    applyCustomerInfo(pendingMatch)
+    setPendingMatch(null)
+    setPhoneVerified(true)
+    setResolvedDigits(customerPhone.replace(/\D/g, ''))
+  }
+
+  const rejectPendingMatch = () => {
+    setPendingMatch(null)
+    setPhoneVerified(true)
+    setResolvedDigits(customerPhone.replace(/\D/g, ''))
+  }
 
   const addressStale = selectedSuggestion !== null && address.trim() !== selectedSuggestion.label
 
@@ -334,6 +382,64 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
         {items.length > 0 && (
           <div className="border-t border-white/10 px-4 py-3">
             <div className="mb-3">
+              <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-white/50">
+                {t.customerPhone}
+              </label>
+              <input
+                type="tel"
+                value={customerPhone}
+                onChange={(e) => setCustomerPhone(e.target.value)}
+                placeholder={t.customerPhonePlaceholder}
+                className="w-full rounded-lg bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-orange-400"
+              />
+              {!phoneVerified && !pendingMatch && (
+                <p className="mt-1.5 text-[11px] text-white/50">{checkingPhone ? t.checkingPhone : t.phoneFirstHint}</p>
+              )}
+            </div>
+
+            {pendingMatch && !phoneVerified && (
+              <div className="mb-3 rounded-xl bg-white/5 p-4 ring-1 ring-white/10">
+                <p className="mb-2 text-xs font-semibold text-white/70">{t.confirmDataTitle}</p>
+                <div className="space-y-1 text-sm text-white">
+                  {pendingMatch.name && (
+                    <p>
+                      <span className="text-white/50">{t.confirmDataName}: </span>
+                      {pendingMatch.name}
+                    </p>
+                  )}
+                  <p>
+                    <span className="text-white/50">{t.confirmDataPhone}: </span>
+                    {customerPhone}
+                  </p>
+                  {(pendingMatch.lastSuggestion?.label ?? pendingMatch.address) && (
+                    <p>
+                      <span className="text-white/50">{t.confirmDataAddress}: </span>
+                      {pendingMatch.lastSuggestion?.label ?? pendingMatch.address}
+                    </p>
+                  )}
+                </div>
+                <div className="mt-3 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={confirmPendingMatch}
+                    className="flex-1 rounded-lg bg-green-600 py-2 text-xs font-bold text-white hover:bg-green-500"
+                  >
+                    {t.confirmDataYes}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={rejectPendingMatch}
+                    className="flex-1 rounded-lg bg-white/10 py-2 text-xs font-semibold text-white/70 hover:bg-white/20"
+                  >
+                    {t.confirmDataNo}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {phoneVerified && (
+              <>
+            <div className="mb-3">
               <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-white/50">{td.title}</p>
               <div className="flex gap-2">
                 <button
@@ -399,19 +505,6 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
                   />
                 </div>
               )}
-            </div>
-
-            <div className="mb-3">
-              <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-white/50">
-                {t.customerPhone}
-              </label>
-              <input
-                type="tel"
-                value={customerPhone}
-                onChange={(e) => setCustomerPhone(e.target.value)}
-                placeholder={t.customerPhonePlaceholder}
-                className="w-full rounded-lg bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-orange-400"
-              />
             </div>
 
             <div className="mb-3">
@@ -571,6 +664,8 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
             >
               {t.clear}
             </button>
+              </>
+            )}
           </div>
         )}
         </div>
