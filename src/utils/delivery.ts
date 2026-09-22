@@ -20,6 +20,13 @@ const METERS_PER_MILE = 1609.344
 const NJ_TOLL_FEE = 4
 const MAX_DELIVERY_MILES = 15
 
+// Só PA/NJ importam aqui (área de entrega) — evita nome de estado por extenso repetido
+// junto com bairro/cidade no endereço curto.
+const STATE_ABBR: Record<string, string> = {
+  Pennsylvania: 'PA',
+  'New Jersey': 'NJ',
+}
+
 // Faixas de distância -> taxa. Acima de 8mi soma $1 por milha inteira excedente (ver feeForDistance).
 const FEE_TIERS: { maxMi: number; fee: number }[] = [
   { maxMi: 1.3, fee: 0 },
@@ -100,20 +107,30 @@ export async function searchAddressSuggestions(text: string): Promise<AddressSea
       .map((f: any) => {
         // Sem house_number no mapa (comum em ruas de NJ) — mantém o número que a pessoa
         // digitou na frente do nome, pra não sumir com ele na tela.
-        const label = f.address?.house_number || !leadingNumber ? f.display_name : `${leadingNumber} ${f.display_name}`
+        const houseNumber = f.address?.house_number as string | undefined
+        const road = (f.address?.road ?? f.address?.name) as string | undefined
+        const streetPart = road ? `${houseNumber ?? leadingNumber ?? ''} ${road}`.trim() : (f.display_name as string)
         const isNewJersey = f.address?.state === 'New Jersey'
+        const cityForLabel: string | undefined = f.address?.city || f.address?.town || f.address?.village
         const neighbourhood: string | undefined =
           f.address?.neighbourhood || f.address?.suburb || f.address?.quarter || f.address?.city_district
-        const cityLabel: string | undefined = isNewJersey
-          ? 'New Jersey'
-          : f.address?.city || f.address?.town || f.address?.village
+        const cityLabel: string | undefined = isNewJersey ? 'New Jersey' : cityForLabel
+        const stateAbbr = STATE_ABBR[f.address?.state as string] ?? (f.address?.state as string | undefined)
+        const postcode = f.address?.postcode as string | undefined
+        // Endereço curto pra mostrar na tela e imprimir na notinha — só rua/número, bairro,
+        // cidade e estado+CEP, sem repetir "Philadelphia" três vezes nem mostrar país/condado
+        // (o display_name completo da API vem bem verboso).
+        const cityStateZip = [cityForLabel, [stateAbbr, postcode].filter(Boolean).join(' ')].filter(Boolean).join(', ')
+        const label = [streetPart, neighbourhood && neighbourhood !== cityForLabel ? neighbourhood : undefined, cityStateZip]
+          .filter(Boolean)
+          .join(', ')
         return {
-          label: label as string,
+          label: label || (f.display_name as string),
           coords: [Number(f.lon), Number(f.lat)] as [number, number],
           isNewJersey,
           neighbourhood,
           cityLabel,
-          postcode: f.address?.postcode as string | undefined,
+          postcode,
         }
       })
     return { status: 'ok', suggestions }

@@ -31,11 +31,10 @@ export function CartDrawer({ lang, open, onClose }: { lang: Lang; open: boolean;
   // atualizado manualmente depois de cada pedido — senão o app fica "lembrando" só do que
   // tinha no aparelho quando a página abriu, e não reconhece o telefone no pedido seguinte.
   const [savedCustomer, setSavedCustomer] = useState(loadSavedCustomer)
-  // Telefone é o único campo pré-preenchido de cara — os outros só vêm quando o telefone
-  // digitado bate com o telefone salvo (evita preencher com dado de outra pessoa, caso o
-  // aparelho seja compartilhado).
+  // Telefone SEMPRE começa vazio, mesmo se já tiver um salvo nesse aparelho — só aparece
+  // algo depois que a pessoa digita, nunca sozinho ao abrir o site (pedido do João, 22/09/2026).
   const [customerName, setCustomerName] = useState('')
-  const [customerPhone, setCustomerPhone] = useState(savedCustomer.phone ?? '')
+  const [customerPhone, setCustomerPhone] = useState('')
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null)
   const [changeFor, setChangeFor] = useState('')
   const [sending, setSending] = useState(false)
